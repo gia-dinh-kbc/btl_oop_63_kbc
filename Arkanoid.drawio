@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="28.2.5">
   <diagram name="Page-1" id="rrp5fznNyrah-Tia1xe5">
-    <mxGraphModel dx="1418" dy="788" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="1493" dy="829" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -10,7 +10,7 @@
         <mxCell id="gCDxPsA98oiudeuqMyr2-7" value="&amp;lt;&amp;lt;Abstract&amp;gt;&amp;gt; GameObject" style="rounded=0;whiteSpace=wrap;html=1;" parent="gCDxPsA98oiudeuqMyr2-10" vertex="1">
           <mxGeometry width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="gCDxPsA98oiudeuqMyr2-8" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;- x: double&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;- y: double&lt;/div&gt;&lt;div style=&quot;&quot;&gt;- width: double&lt;/div&gt;&lt;div style=&quot;&quot;&gt;- height: double&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-10" vertex="1">
+        <mxCell id="gCDxPsA98oiudeuqMyr2-8" value="&lt;div style=&quot;&quot;&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;# x: double&lt;/span&gt;&lt;/div&gt;&lt;div style=&quot;&quot;&gt;# y: double&lt;/div&gt;&lt;div style=&quot;&quot;&gt;# width: double&lt;/div&gt;&lt;div style=&quot;&quot;&gt;# height: double&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-10" vertex="1">
           <mxGeometry y="40" width="160" height="80" as="geometry" />
         </mxCell>
         <mxCell id="gCDxPsA98oiudeuqMyr2-9" value="&lt;b&gt;+ update(): void&lt;/b&gt;&lt;div&gt;&lt;b&gt;+ render(): void&lt;/b&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-10" vertex="1">
@@ -22,7 +22,7 @@
         <mxCell id="gCDxPsA98oiudeuqMyr2-11" value="&amp;lt;&amp;lt;Abstract&amp;gt;&amp;gt; MovableObject" style="rounded=0;whiteSpace=wrap;html=1;" parent="gCDxPsA98oiudeuqMyr2-14" vertex="1">
           <mxGeometry width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="gCDxPsA98oiudeuqMyr2-12" value="- dx: double&lt;div&gt;- dy: double&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-14" vertex="1">
+        <mxCell id="gCDxPsA98oiudeuqMyr2-12" value="# dx: double&lt;div&gt;# dy: double&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-14" vertex="1">
           <mxGeometry y="40" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="gCDxPsA98oiudeuqMyr2-13" value="&lt;b&gt;+ move(): void&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-14" vertex="1">
@@ -70,7 +70,7 @@
         <mxCell id="gCDxPsA98oiudeuqMyr2-25" value="Brick" style="rounded=0;whiteSpace=wrap;html=1;" parent="gCDxPsA98oiudeuqMyr2-28" vertex="1">
           <mxGeometry width="160" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="gCDxPsA98oiudeuqMyr2-26" value="- hitPoints: int&lt;div&gt;- type: int&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-28" vertex="1">
+        <mxCell id="gCDxPsA98oiudeuqMyr2-26" value="# hitPoints: int&lt;div&gt;# type: int&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-28" vertex="1">
           <mxGeometry y="40" width="160" height="40" as="geometry" />
         </mxCell>
         <mxCell id="gCDxPsA98oiudeuqMyr2-27" value="+ takeHit(): void&lt;div&gt;+ isDestroyed(): boolean&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-28" vertex="1">
@@ -100,7 +100,7 @@
         <mxCell id="gCDxPsA98oiudeuqMyr2-35" value="PowerUp" style="rounded=0;whiteSpace=wrap;html=1;" parent="gCDxPsA98oiudeuqMyr2-38" vertex="1">
           <mxGeometry width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="gCDxPsA98oiudeuqMyr2-36" value="- type: int&lt;div&gt;- duration: double&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-38" vertex="1">
+        <mxCell id="gCDxPsA98oiudeuqMyr2-36" value="# type: int&lt;div&gt;# duration: double&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-38" vertex="1">
           <mxGeometry y="40" width="240" height="40" as="geometry" />
         </mxCell>
         <mxCell id="gCDxPsA98oiudeuqMyr2-37" value="+ applyEffect(paddle: Paddle): void&lt;div&gt;+ removeEffect(paddle: Paddle): void&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;align=left;" parent="gCDxPsA98oiudeuqMyr2-38" vertex="1">

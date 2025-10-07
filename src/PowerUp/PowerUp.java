@@ -3,9 +3,13 @@ package PowerUp;
 import GameManager.GameObject;
 import MovableObject.Paddle;
 
+import java.awt.Color;
+import java.awt.Graphics;
+
 public class PowerUp extends GameObject {
-    private int type;
-    private double duration;
+    public PowerUp(int x, int y, int width, int height) {
+        super(x, y, width, height);
+    }
 
     public void applyEffect(Paddle paddle) {
 
@@ -21,7 +25,8 @@ public class PowerUp extends GameObject {
     }
 
     @Override
-    public void render() {
-
+    public void render(Graphics g) {
+        g.setColor(Color.YELLOW);
+        g.fillRect(x, y, width, height);
     }
 }
