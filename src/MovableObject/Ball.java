@@ -7,7 +7,7 @@ import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 
 public class Ball extends MovableObject {
-    private int speed = 5;
+    private final int speed = 5;
     private Shape hitbox;
     public Ball(int x, int y, int radius) {
         super(x, y, radius, radius);
