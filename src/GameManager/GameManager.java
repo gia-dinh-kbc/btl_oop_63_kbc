@@ -1,6 +1,6 @@
 package GameManager;
 
-import Brick.Brick;
+import Brick.*;
 import MovableObject.Ball;
 import MovableObject.Paddle;
 import PowerUp.PowerUp;
@@ -51,8 +51,29 @@ public class GameManager implements KeyListener {
             ball.reverseY();
         }
 
-        // Paddle and brick collision here
+        // Paddle and brick collision
+        if (ball.getHitbox().intersects(paddle.getHitbox().getBounds2D())) {
+            ball.setY(paddle.getY() - ball.getHeight());
+            ball.reverseY();
+        }
+
+        for(int i = 0; i < bricks.size(); i++) {
+            Brick brick = bricks.get(i);
+            if (ball.getHitbox().intersects(brick.getHitbox().getBounds2D())) {
+                brick.takeHit();
+                ball.reverseY();
+                if (brick.isDestroyed()) {
+                    score += 100;
+                    i--;
+                    bricks.remove(brick);
+                }
+                break;
+            }
+        }
+
+
     }
+
 
     public void gameOver() {
         gameState = 2;
@@ -118,55 +139,66 @@ public class GameManager implements KeyListener {
     }
 
     public static void main(String[] args) {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Arkanoid");
-            GameManager gameManager = new GameManager();
-            Renderer renderer = new Renderer(gameManager);
+    javax.swing.SwingUtilities.invokeLater(
+        () -> {
+          JFrame frame = new JFrame("Arkanoid");
+          GameManager gameManager = new GameManager();
+          Renderer renderer = new Renderer(gameManager);
 
-            // Create bricks
-            for (int i = 0; i < 10; i++) {
-                for (int j = 1; j <= 3; j++) {
-                    Brick brick = new Brick(i * 50 + 10, 20 * j + 10 , 25, 10);
+          // Create bricks
+          int width = WINDOW_WIDTH / 10;
+          int height = width / 4;
+          for (int i = 0; i < 10; i++) {
+            for (int j = 1; j <= 3; j++) {
+                if(j == 1){
+                    Brick brick = new StrongBrick(i * width, j * height + 10 + 3 * height, width - 1, height - 1);
                     gameManager.getBricks().add(brick);
+                    continue;
                 }
+              Brick brick = new NormalBrick(i * width, j * height + 10 + 3 * height, width - 1, height - 1);
+              gameManager.getBricks().add(brick);
             }
+          }
 
-            // Create handle inputs
-            frame.add(renderer);
-            frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setResizable(false);
-            frame.setLocationRelativeTo(null);
+          // Create handle inputs
+          frame.add(renderer);
+          frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+          frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+          frame.setResizable(false);
+          frame.setLocationRelativeTo(null);
 
-            renderer.addKeyListener(gameManager);
-            renderer.setFocusable(true);
+          renderer.addKeyListener(gameManager);
+          renderer.setFocusable(true);
 
-            frame.setVisible(true);
-            renderer.requestFocusInWindow();
-            renderer.requestFocus();
+          frame.setVisible(true);
+          renderer.requestFocusInWindow();
+          renderer.requestFocus();
 
-            // Game loop
-            new Thread(() -> {
-                long lastTime = System.nanoTime();
-                double nsPerTick = 1000000000.0 / 60.0;
-                double delta = 0;
+          // Game loop
+          new Thread(
+                  () -> {
+                    long lastTime = System.nanoTime();
+                    double nsPerTick = 1000000000.0 / 60.0;
+                    double delta = 0;
 
-                while (true) {
-                    long now = System.nanoTime();
-                    delta += (now - lastTime) / nsPerTick;
-                    lastTime = now;
+                    while (true) {
+                      long now = System.nanoTime();
+                      delta += (now - lastTime) / nsPerTick;
+                      lastTime = now;
 
-                    if (delta >= 1) {
+                      if (delta >= 1) {
                         gameManager.updateGame();
                         renderer.repaint();
                         delta--;
-                    }
+                      }
 
-                    try {
+                      try {
                         Thread.sleep(2);
-                    } catch (InterruptedException ignored) {}
-                }
-            }).start();
+                      } catch (InterruptedException ignored) {
+                      }
+                    }
+                  })
+              .start();
         });
     }
 }
