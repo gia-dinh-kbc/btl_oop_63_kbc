@@ -14,10 +14,13 @@ public class Brick extends GameObject {
     }
 
     public void takeHit() {
-
+        hitPoints--;
     }
 
     public boolean isDestroyed() {
+        if (hitPoints <= 0) {
+            return true;
+        }
         return false;
     }
 
