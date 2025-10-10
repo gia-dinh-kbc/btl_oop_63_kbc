@@ -2,29 +2,32 @@ package MovableObject;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.Random;
 import java.awt.Shape;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.Ellipse2D;
+import java.util.Random;
 
 public class Ball extends MovableObject {
-    private final int speed = 5;
-    private Shape hitbox;
+    private int speed = 2;
+    private Ellipse2D.Double hitbox;
+
     public Ball(int x, int y, int radius) {
         super(x, y, radius, radius);
+        hitbox = new Ellipse2D.Double(x, y, width, height);
         reset(x, y);
-        hitbox = new java.awt.geom.Ellipse2D.Double(x, y, width, height);
     }
+
     public Shape getHitbox() {
         return hitbox;
     }
+
     public void reset(int x, int y) {
+        int[] angles = {-3, -2, -1, 1, 2, 3};
         this.x = x;
         this.y = y;
         Random random = new Random();
-        boolean r = random.nextBoolean();
-        this.dx = (r) ? speed : -speed;
+        this.dx = angles[new Random().nextInt(angles.length)];
         this.dy = -speed;
-        hitbox = new java.awt.geom.Ellipse2D.Double(x, y, width, height);
+        hitbox.setFrame(x, y, width, height);
     }
 
     public void reverseX() {
@@ -39,7 +42,7 @@ public class Ball extends MovableObject {
     public void move() {
         x += dx;
         y += dy;
-        hitbox = new java.awt.geom.Ellipse2D.Double(x, y, width, height);
+        hitbox.setFrame(x, y, width, height);
     }
 
     @Override

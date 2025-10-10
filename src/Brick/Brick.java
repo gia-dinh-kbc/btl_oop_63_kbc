@@ -5,16 +5,16 @@ import GameManager.GameObject;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Shape;
-import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 
 public class Brick extends GameObject {
     protected int hitPoints;
     protected int type;
-    protected Shape hitbox;
+    protected Rectangle2D.Double hitbox;
 
     public Brick(int x, int y, int width, int height) {
         super(x, y, width, height);
-        this.hitbox = new java.awt.geom.Rectangle2D.Double(x, y, width, height);
+        hitbox = new Rectangle2D.Double(x, y, width, height);
     }
 
     public void takeHit() {

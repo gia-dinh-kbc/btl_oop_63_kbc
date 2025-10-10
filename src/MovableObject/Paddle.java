@@ -5,18 +5,22 @@ import PowerUp.PowerUp;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Shape;
+import java.awt.geom.Rectangle2D;
 
 public class Paddle extends MovableObject {
-    private int speed = 10;
+    private int speed = 5;
     private PowerUp currentPowerUp;
-    private Shape hitbox;
+    private Rectangle2D.Double hitbox;
+
     public Paddle(int x, int y, int width, int height) {
         super(x, y, width, height);
-        hitbox = new java.awt.geom.Rectangle2D.Double(x, y, width, height);
+        hitbox = new Rectangle2D.Double(x, y, width, height);
     }
+
     public Shape getHitbox() {
         return hitbox;
     }
+
     public void moveLeft() {
         dx = -speed;
     }
@@ -44,7 +48,8 @@ public class Paddle extends MovableObject {
         if (x + width > 500) {
             x = 500 - width;
         }
-        hitbox = new java.awt.geom.Rectangle2D.Double(x, y, width, height);
+
+        hitbox.setRect(x, y, width, height);
     }
 
     @Override
