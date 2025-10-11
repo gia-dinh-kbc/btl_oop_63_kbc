@@ -1,5 +1,6 @@
 package GameManager;
 
+import Brick.BrickFactory;
 import Brick.Brick;
 import Brick.NormalBrick;
 import Brick.StrongBrick;
@@ -13,6 +14,10 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import static Brick.BrickFactory.NORM_BRICK;
+import static Brick.BrickFactory.STRONG_BRICK;
+
+import static java.lang.Math.abs;
 
 public class GameManager implements KeyListener {
     private Paddle paddle = new Paddle(200, 450, 80, 15);
@@ -39,10 +44,10 @@ public class GameManager implements KeyListener {
         for (int i = 0; i < 10; i++) {
             for (int j = 1; j <= 3; j++) {
                 if (j == 1) {
-                    Brick brick = new StrongBrick(i * width, j * height + 10 + 3 * height, width - 1, height - 1);
+                    Brick brick = BrickFactory.createBrick(STRONG_BRICK, i * width, j * height + 10 + 3 * height, width - 1, height - 1);
                     bricks.add(brick);
                 } else {
-                    Brick brick = new NormalBrick(i * width, j * height + 10 + 3 * height, width - 1, height - 1);
+                    Brick brick = BrickFactory.createBrick(NORM_BRICK, i * width, j * height + 10 + 3 * height, width - 1, height - 1);
                     bricks.add(brick);
                 }
             }
@@ -116,7 +121,7 @@ public class GameManager implements KeyListener {
             ball.setY(paddle.getY() - ball.getWidth());
 
             int paddleCenter = paddle.getX() + paddle.getWidth() / 2;
-            int ballCenter = ball.getX() + ball.getWidth() / 2;
+            int ballCenter = ball.getX();
             int hitOffset = ballCenter - paddleCenter;
 
             int bounceAngle = 4;
@@ -127,9 +132,9 @@ public class GameManager implements KeyListener {
                 dx = (Math.random() < 0.5) ? -2 : 2;
             }
 
-            int dy = -Math.abs(ball.getDy());
+            int dy = -abs(ball.getDy());
 
-            int maxSpeed = 5;
+            int maxSpeed = 3;
             if (dx > maxSpeed) {
                 dx = maxSpeed;
             }
@@ -140,6 +145,7 @@ public class GameManager implements KeyListener {
 
             ball.setDx(dx);
             ball.setDy(dy);
+            System.out.println("Ball dx: " + ball.getDx() + ", dy: " + ball.getDy());
         }
     }
 
@@ -208,7 +214,6 @@ public class GameManager implements KeyListener {
 
             GameManager gameManager = new GameManager();
             Renderer renderer = new Renderer(gameManager);
-
             // Create bricks
             int width = WINDOW_WIDTH / 10;
             int height = width / 4;

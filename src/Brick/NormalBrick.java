@@ -9,6 +9,7 @@ public class NormalBrick extends Brick {
         super(x, y, width, height);
         this.type = 1;
         this.hitPoints = 1;
+        this.type=1;
     }
     @Override
     public void render(java.awt.Graphics g) {

@@ -7,6 +7,7 @@ public class StrongBrick extends Brick {
         super(x, y, width, height);
         this.type = 2;
         this.hitPoints = 2;
+        this.type=2;
     }
 
     @Override

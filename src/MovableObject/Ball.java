@@ -7,7 +7,7 @@ import java.awt.geom.Ellipse2D;
 import java.util.Random;
 
 public class Ball extends MovableObject {
-    private int speed = 2;
+    private int speed = 3;
     private Ellipse2D.Double hitbox;
 
     public Ball(int x, int y, int radius) {

@@ -7,7 +7,7 @@ import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
 
-public class Brick extends GameObject {
+public abstract class Brick extends GameObject {
     protected int hitPoints;
     protected int type;
     protected Rectangle2D.Double hitbox;
@@ -38,9 +38,5 @@ public class Brick extends GameObject {
     }
 
     @Override
-    public void render(Graphics g) {
-        Color color = new Color(51,153,255);
-        g.setColor(color);
-        g.fillRect(x, y, width, height);
-    }
+    public abstract void render(Graphics g);
 }
