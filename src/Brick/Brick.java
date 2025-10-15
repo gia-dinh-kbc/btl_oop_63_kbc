@@ -1,19 +1,23 @@
 package Brick;
 
 import GameManager.GameObject;
+import GameManager.SpriteManager;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 public class Brick extends GameObject {
     protected int hitPoints;
     protected int type;
     protected Rectangle2D.Double hitbox;
+    protected SpriteManager spriteManager;
+    protected BufferedImage brickSprite;
 
-    public Brick(int x, int y, int width, int height) {
+    public Brick(int x, int y, int width, int height, SpriteManager spriteManager) {
         super(x, y, width, height);
+        this.spriteManager = spriteManager;
         hitbox = new Rectangle2D.Double(x, y, width, height);
     }
 
@@ -39,8 +43,6 @@ public class Brick extends GameObject {
 
     @Override
     public void render(Graphics g) {
-        Color color = new Color(51,153,255);
-        g.setColor(color);
-        g.fillRect(x, y, width, height);
+        g.drawImage(brickSprite, x, y, width, height, null);
     }
 }

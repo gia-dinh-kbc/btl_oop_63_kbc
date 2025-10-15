@@ -1,23 +1,27 @@
 package Brick;
 
-import java.awt.*;
+import GameManager.SpriteManager;
 
 public class StrongBrick extends Brick {
-    public StrongBrick(int x, int y, int width, int height) {
-        super(x, y, width, height);
+
+    public StrongBrick(int x, int y, int width, int height, SpriteManager spriteManager) {
+        super(x, y, width, height, spriteManager);
         this.type = 2;
         this.hitPoints = 2;
+        updateSprite();
     }
 
     @Override
-    public void render(java.awt.Graphics g) {
+    public void takeHit() {
+        super.takeHit();
+        updateSprite();
+    }
+
+    private void updateSprite() {
         if (hitPoints == 2) {
-            Color color = new Color(101,55,110);
-            g.setColor(color);
+            this.brickSprite = spriteManager.getSprite("brick_blue");
         } else if (hitPoints == 1) {
-            Color color = new Color(222,123,242);
-            g.setColor(color);
+            this.brickSprite = spriteManager.getSprite("brick_pink");
         }
-        g.fillRect(x, y, width, height);
     }
 }

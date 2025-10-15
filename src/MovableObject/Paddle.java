@@ -1,19 +1,25 @@
 package MovableObject;
 
+import GameManager.GameManager;
+import GameManager.SpriteManager;
 import PowerUp.PowerUp;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 
 public class Paddle extends MovableObject {
     private int speed = 5;
     private PowerUp currentPowerUp;
     private Rectangle2D.Double hitbox;
+    private SpriteManager spriteManager;
+    private BufferedImage paddleSprite;
 
-    public Paddle(int x, int y, int width, int height) {
+    public Paddle(int x, int y, int width, int height, SpriteManager spriteManager) {
         super(x, y, width, height);
+        this.spriteManager = spriteManager;
+        this.paddleSprite = spriteManager.getSprite("paddle_orange");
         hitbox = new Rectangle2D.Double(x, y, width, height);
     }
 
@@ -45,8 +51,8 @@ public class Paddle extends MovableObject {
             x = 0;
         }
 
-        if (x + width > 500) {
-            x = 500 - width;
+        if (x + width > GameManager.getWindowWidth()) {
+            x = GameManager.getWindowWidth() - width;
         }
 
         hitbox.setRect(x, y, width, height);
@@ -59,7 +65,6 @@ public class Paddle extends MovableObject {
 
     @Override
     public void render(Graphics g) {
-        g.setColor(Color.BLUE);
-        g.fillRect(x, y, width, height);
+        g.drawImage(paddleSprite, x, y, width, height, null);
     }
 }
