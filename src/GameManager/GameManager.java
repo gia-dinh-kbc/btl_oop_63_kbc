@@ -31,7 +31,7 @@ public class GameManager implements KeyListener {
     private static final int WINDOW_HEIGHT = 960;
 
     public void startGame() {
-        gameState = 3;
+        gameState = 1;
         lives = 3;
         score = 0;
         ballAttached = true;
