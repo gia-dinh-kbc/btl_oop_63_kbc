@@ -30,8 +30,13 @@ public class GameManager implements KeyListener {
     private static final int WINDOW_WIDTH = 640;
     private static final int WINDOW_HEIGHT = 960;
 
+    public GameManager() {
+        soundManager.stopAllSounds();
+        soundManager.playLoopingSound("start");
+    }
+
     public void startGame() {
-        gameState = 1;
+        gameState = 0;
         lives = 3;
         score = 0;
         ballAttached = true;
@@ -41,8 +46,6 @@ public class GameManager implements KeyListener {
         ball.setDx(0);
         ball.setDy(0);
         bricks.clear();
-
-        soundManager.playBackgroundMusic();
 
         int width = 64;
         int height = 32;
@@ -57,6 +60,8 @@ public class GameManager implements KeyListener {
                 }
             }
         }
+
+        gameState = 1;
     }
 
     public void updateGame() {
@@ -65,8 +70,8 @@ public class GameManager implements KeyListener {
         }
 
         if (ballAttached) {
-            int ballX = paddle.getX() + (paddle.getWidth() / 2) - (ball.getWidth() / 2);
-            int ballY = paddle.getY() - ball.getHeight();
+            double ballX = paddle.getX() + (paddle.getWidth() / 2) - (ball.getWidth() / 2);
+            double ballY = paddle.getY() - ball.getHeight();
             ball.setX(ballX);
             ball.setY(ballY);
         } else {
@@ -95,84 +100,130 @@ public class GameManager implements KeyListener {
         if (bricks.isEmpty()) {
             youWin();
         }
+
+        if (gameState == 1 && !soundManager.isPlaying("background")) {
+            soundManager.stopAllSounds();
+            soundManager.playLoopingSound("background");
+        }
     }
 
     public void gameOver() {
         gameState = 2;
-        soundManager.stopBackgroundMusic();
-        soundManager.playSound("gameOver");
+        soundManager.stopAllSounds();
+        soundManager.playLoopingSound("gameOver");
     }
 
     public void youWin() {
         gameState = 3;
-        soundManager.stopBackgroundMusic();
-        soundManager.playSound("win");
+        soundManager.stopAllSounds();
+        soundManager.playLoopingSound("win");
     }
 
     public void checkCollisions() {
         // Ball and wall collisions
-        if (ball.getX() <= 0 || ball.getX() + ball.getWidth() >= WINDOW_WIDTH) {
+        if (ball.getX() <= 0) {
+            ball.setX(0);  // Reposition inside bounds
+            ball.reverseX();
+            soundManager.playSound("bounce");
+        } else if (ball.getX() + ball.getWidth() >= WINDOW_WIDTH) {
+            ball.setX(WINDOW_WIDTH - ball.getWidth());
             ball.reverseX();
             soundManager.playSound("bounce");
         }
 
         if (ball.getY() <= 0) {
+            ball.setY(0);  // Reposition inside bounds
             ball.reverseY();
             soundManager.playSound("bounce");
         }
 
         // Ball and brick collision
         Iterator<Brick> iterator = bricks.iterator();
+
         while (iterator.hasNext()) {
             Brick brick = iterator.next();
+
             if (ball.getHitbox().intersects(brick.getHitbox().getBounds2D())) {
+                double ballX = ball.getX();
+                double ballY = ball.getY();
+                int ballWidth = ball.getWidth();
+                int ballHeight = ball.getHeight();
+
+                double brickX = brick.getX();
+                double brickY = brick.getY();
+                int brickWidth = brick.getWidth();
+                int brickHeight = brick.getHeight();
+
+                double overlapLeft = (ballX + ballWidth) - brickX;
+                double overlapRight = (brickX + brickWidth) - ballX;
+                double overlapTop = (ballY + ballHeight) - brickY;
+                double overlapBottom = (brickY + brickHeight) - ballY;
+
+                double minOverlap = Math.min(
+                        Math.min(overlapLeft, overlapRight),
+                        Math.min(overlapTop, overlapBottom)
+                );
+
+                double currentSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
+
                 brick.takeHit();
-                ball.reverseY();
                 soundManager.playSound("hit");
+
+                if (minOverlap == overlapTop && ball.getDy() > 0) {
+                    ball.setY(brickY - ballHeight);
+                    ball.reverseY();
+                } else if (minOverlap == overlapBottom && ball.getDy() < 0) {
+                    ball.setY(brickY + brickHeight);
+                    ball.reverseY();
+                } else if (minOverlap == overlapLeft && ball.getDx() > 0) {
+                    ball.setX(brickX - ballWidth);
+                    ball.reverseX();
+                } else if (minOverlap == overlapRight && ball.getDx() < 0) {
+                    ball.setX(brickX + brickWidth);
+                    ball.reverseX();
+                } else {
+                    ball.reverseY();
+                    ball.reverseX();
+                }
+
+                // Restore speed after reversing direction
+                double newSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
+                if (newSpeed > 0) {
+                    double speedRatio = currentSpeed / newSpeed;
+                    ball.setDx(ball.getDx() * speedRatio);
+                    ball.setDy(ball.getDy() * speedRatio);
+                }
 
                 if (brick.isDestroyed()) {
                     score += 100;
                     iterator.remove();
                     soundManager.playSound("break");
                 }
+
                 break;
             }
         }
 
         // Ball and paddle collision
-        if (ball.getY() + ball.getWidth() >= paddle.getY()
-                && ball.getY() < paddle.getY() + paddle.getHeight()
-                && ball.getX() + ball.getWidth() > paddle.getX()
-                && ball.getX() < paddle.getX() + paddle.getWidth()
+        if (ball.getX() + ball.getWidth() >= paddle.getX()
+                && ball.getX() <= paddle.getX() + paddle.getWidth()
+                && ball.getY() + ball.getHeight() >= paddle.getY()
+                && ball.getY() <= paddle.getY() + paddle.getHeight()
                 && ball.getDy() > 0) {
 
-            ball.setY(paddle.getY() - ball.getWidth());
+            ball.setY(paddle.getY() - ball.getHeight());
 
-            int paddleCenter = paddle.getX() + paddle.getWidth() / 2;
-            int ballCenter = ball.getX() + ball.getWidth() / 2;
-            int hitOffset = ballCenter - paddleCenter;
+            double ballCenterX = ball.getX() + (double) ball.getWidth() / 2;
+            double paddleCenterX = paddle.getX() + (double) paddle.getWidth() / 2;
+            double relativeHitX = (double)(ballCenterX - paddleCenterX) / (paddle.getWidth() / 2.0);
+            relativeHitX = Math.max(-1.0, Math.min(1.0, relativeHitX));
 
-            int bounceAngle = 4;
+            double bounceAngle = relativeHitX * Math.toRadians(60);
+            double currentSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
 
-            int dx = hitOffset / bounceAngle;
-
-            if (dx == 0) {
-                dx = (Math.random() < 0.5) ? -2 : 2;
-            }
-
-            int dy = -Math.abs(ball.getDy());
-
-            int maxSpeed = 5;
-            if (dx > maxSpeed) {
-                dx = maxSpeed;
-            }
-
-            if (dx < -maxSpeed) {
-                dx = -maxSpeed;
-            }
-
-            ball.setDx(dx);
-            ball.setDy(dy);
+            ball.setDx(currentSpeed * Math.sin(bounceAngle));
+            ball.setDy(-currentSpeed * Math.cos(bounceAngle));
+            soundManager.playSound("bounce");
         }
     }
 
@@ -218,14 +269,7 @@ public class GameManager implements KeyListener {
 
     private void launchBall() {
         ballAttached = false;
-        int[] angles = {-3, -2, -1, 1, 2, 3};
-        java.util.Random random = new java.util.Random();
-        int dx = angles[random.nextInt(angles.length)];
-        int dy = -3;
-
-        ball.setDx(dx);
-        ball.setDy(dy);
-
+        ball.launch();
         soundManager.playSound("bounce");
     }
 
@@ -248,10 +292,6 @@ public class GameManager implements KeyListener {
             } else if (gameState == 1 && ballAttached) {
                 launchBall();
             }
-        } else if (key == KeyEvent.VK_M) {
-            soundManager.toggleMusic();
-        } else if (key == KeyEvent.VK_N) {
-            soundManager.toggleSFX();
         }
     }
 
@@ -273,22 +313,6 @@ public class GameManager implements KeyListener {
 
                 GameManager gameManager = new GameManager();
                 Renderer renderer = new Renderer(gameManager);
-
-                // Create bricks
-                int width = WINDOW_WIDTH / 10;
-                int height = width / 4;
-                for (int i = 0; i < 10; i++) {
-                    for (int j = 1; j <= 3; j++) {
-                        if(j == 1){
-                            Brick brick = new StrongBrick(i * width, j * height + 10 + 3 * height, width - 1, height - 1, gameManager.spriteManager);
-                            gameManager.getBricks().add(brick);
-                            continue;
-                        }
-
-                        Brick brick = new NormalBrick(i * width, j * height + 10 + 3 * height, width - 1, height - 1, gameManager.spriteManager);
-                        gameManager.getBricks().add(brick);
-                    }
-                }
 
                 // Create handle inputs
                 frame.add(renderer);

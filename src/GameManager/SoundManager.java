@@ -3,20 +3,21 @@ package GameManager;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.FloatControl;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SoundManager {
     private Map<String, Clip> soundEffects = new HashMap<>();
-    private Clip backgroundMusic;
-    private boolean musicEnabled = true;
     private boolean sfxEnabled = true;
+    private ExecutorService audioExecutor = Executors.newCachedThreadPool();
 
     public SoundManager() {
         loadSounds();
@@ -29,10 +30,12 @@ public class SoundManager {
         loadSound("hit", "/Resource/SoundEffect/hit.wav");
         loadSound("break", "/Resource/SoundEffect/break.wav");
         loadSound("bounce", "/Resource/SoundEffect/bounce.wav");
-        loadSound("lose", "/Resource/SoundEffect/lose.wav");
-        loadSound("gameOver", "/Resource/SoundEffect/gameOver.wav");
-        loadSound("win", "/Resource/SoundEffect/win.wav");
-        loadBackgroundMusic("/Resource/Music/background.wav");
+        loadSound("loseHealth", "/Resource/SoundEffect/loseHealth.wav");
+        loadSound("lose", "/Resource/SoundEffect/loseHealth.wav");
+        loadSound("gameOver", "/Resource/Music/gameOver.wav");
+        loadSound("win", "/Resource/Music/win.wav");
+        loadSound("background", "/Resource/Music/background.wav");
+        loadSound("start", "/Resource/Music/start.wav");
     }
 
     /**
@@ -52,131 +55,91 @@ public class SoundManager {
             Clip clip = AudioSystem.getClip();
             clip.open(audioIn);
             soundEffects.put(name, clip);
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            System.err.println("Error loading sound: " + path);
+            System.out.println("Successfully loaded sound: " + name);
+        } catch (UnsupportedAudioFileException e) {
+            System.err.println("Unsupported audio format for: " + path);
+            System.err.println("The file might not be a valid WAV file or uses an unsupported encoding.");
+            System.err.println("Try converting it to PCM WAV format (16-bit, 44100Hz)");
+        } catch (IOException e) {
+            System.err.println("IO Error loading sound: " + path);
+            e.printStackTrace();
+        } catch (LineUnavailableException e) {
+            System.err.println("Audio line unavailable for: " + path);
             e.printStackTrace();
         }
     }
 
     /**
-     * Load background music.
-     * @param path music path
-     */
-    private void loadBackgroundMusic(String path) {
-        try {
-            URL url = getClass().getResource(path);
-            if (url == null) {
-                System.err.println("Could not find music file: " + path);
-                return;
-            }
-
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
-            backgroundMusic = AudioSystem.getClip();
-            backgroundMusic.open(audioIn);
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            System.err.println("Error loading background music: " + path);
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Play sound effect.
+     * Play sound effect asynchronously.
      * @param name sound effect name
      */
     public void playSound(String name) {
-        if (!sfxEnabled) return;
+        if (!sfxEnabled) {
+            return;
+        }
 
-        Clip clip = soundEffects.get(name);
-        if (clip != null) {
-            if (clip.isRunning()) {
-                clip.stop();
+        audioExecutor.execute(() -> {
+            Clip clip = soundEffects.get(name);
+
+            if (clip != null) {
+                synchronized (clip) {
+                    if (clip.isRunning()) {
+                        clip.stop();
+                    }
+                    clip.setFramePosition(0);
+                    clip.start();
+                }
+            } else {
+                System.err.println("Warning: Attempted to play non-existent sound: " + name);
             }
-            clip.setFramePosition(0);
-            clip.start();
+        });
+    }
+
+    /**
+     * Play sound with looping for background music.
+     * @param name sound effect name
+     */
+    public void playLoopingSound(String name) {
+        if (!sfxEnabled) {
+            return;
         }
+
+        audioExecutor.execute(() -> {
+            Clip clip = soundEffects.get(name);
+
+            if (clip != null) {
+                synchronized (clip) {
+                    if (clip.isRunning()) {
+                        clip.stop();
+                    }
+                    clip.setFramePosition(0);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
+                }
+            }
+        });
     }
 
     /**
-     * Play background music.
+     * Check if a sound is currently playing.
+     * @param name sound name
+     * @return true if playing
      */
-    public void playBackgroundMusic() {
-        if (!musicEnabled || backgroundMusic == null) return;
-
-        if (!backgroundMusic.isRunning()) {
-            backgroundMusic.setFramePosition(0);
-            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            backgroundMusic.start();
-        }
+    public boolean isPlaying(String name) {
+        Clip clip = soundEffects.get(name);
+        return clip != null && clip.isRunning();
     }
 
     /**
-     * Stop playing background music.
+     * Stop all currently playing sound effects.
      */
-    public void stopBackgroundMusic() {
-        if (backgroundMusic != null && backgroundMusic.isRunning()) {
-            backgroundMusic.stop();
-        }
-    }
-
-    /**
-     * Toggle music.
-     */
-    public void toggleMusic() {
-        musicEnabled = !musicEnabled;
-        if (!musicEnabled) {
-            stopBackgroundMusic();
-        } else {
-            playBackgroundMusic();
-        }
-    }
-
-    /**
-     * Toggle sound effect.
-     */
-    public void toggleSFX() {
-        sfxEnabled = !sfxEnabled;
-    }
-
-    public boolean isMusicEnabled() {
-        return musicEnabled;
-    }
-
-    public boolean isSFXEnabled() {
-        return sfxEnabled;
-    }
-
-    /**
-     * Set volume.
-     * @param volume volume number
-     */
-    public void setMusicVolume(float volume) {
-        setVolume(backgroundMusic, volume);
-    }
-
-    /**
-     * Set sound effect volume.
-     * @param volume volume number
-     */
-    public void setSFXVolume(float volume) {
+    public void stopAllSounds() {
         for (Clip clip : soundEffects.values()) {
-            setVolume(clip, volume);
-        }
-    }
-
-    /**
-     * Set volume.
-     * @param clip sound effect
-     * @param volume volume number
-     */
-    private void setVolume(Clip clip, float volume) {
-        if (clip != null) {
-            try {
-                FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                float range = gainControl.getMaximum() - gainControl.getMinimum();
-                float gain = (range * volume) + gainControl.getMinimum();
-                gainControl.setValue(gain);
-            } catch (Exception e) {
-                System.err.println("Error setting volume");
+            if (clip != null) {
+                synchronized (clip) {
+                    if (clip.isRunning()) {
+                        clip.stop();
+                    }
+                }
             }
         }
     }
@@ -185,14 +148,16 @@ public class SoundManager {
      * Remove music and sound effect.
      */
     public void cleanup() {
-        stopBackgroundMusic();
+        audioExecutor.shutdown();
         for (Clip clip : soundEffects.values()) {
             if (clip != null) {
-                clip.close();
+                synchronized (clip) {
+                    if (clip.isRunning()) {
+                        clip.stop();
+                    }
+                    clip.close();
+                }
             }
-        }
-        if (backgroundMusic != null) {
-            backgroundMusic.close();
         }
     }
 }
