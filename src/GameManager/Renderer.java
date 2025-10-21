@@ -15,18 +15,51 @@ public class Renderer extends JPanel {
     private Font subtitleFont = new Font("Arial", Font.PLAIN, 20);
     private Font gameFont = new Font("Arial", Font.BOLD, 20);
 
+    // Cache the images to prevent flickering
+    private Image startScreenBackground;
+    private Image gameBackground;
+    private Image gameOverBackground;
+    private Image youWinBackground;
+
     public Renderer(GameManager gameManager) {
         this.gameManager = gameManager;
         setBackground(Color.BLACK);
         setFocusable(true);
         setDoubleBuffered(true);
+
+        // Load all images once during initialization
+        loadImages();
+    }
+
+    private void loadImages() {
+        try {
+            startScreenBackground = new ImageIcon(
+                    getClass().getResource("/Resource/Backgrounds/startScreenBackground.gif")
+            ).getImage();
+
+            // Use the JPEG for game background (already static)
+            gameBackground = new ImageIcon(
+                    getClass().getResource("/Resource/Backgrounds/gameBackground.jpeg")
+            ).getImage();
+
+            gameOverBackground = new ImageIcon(
+                    getClass().getResource("/Resource/Backgrounds/gameOverBackground.gif")
+            ).getImage();
+            youWinBackground = new ImageIcon(
+                    getClass().getResource("/Resource/Backgrounds/youWinBackground.gif")
+            ).getImage();
+
+            System.out.println("Background images loaded successfully!");
+        } catch (Exception e) {
+            System.err.println("Error loading images: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void drawStartScreen(Graphics g) {
-        Image startScreenBackground = new ImageIcon(
-                getClass().getResource("/Resource/Backgrounds/startScreenBackground.gif")
-        ).getImage();
-        g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        if (startScreenBackground != null) {
+            g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        }
         g.setColor(Color.WHITE);
         g.setFont(titleFont);
         g.drawString("Arkanoid Game", GameManager.getWindowWidth() / 2 - 160, GameManager.getWindowHeight() / 2);
@@ -35,14 +68,13 @@ public class Renderer extends JPanel {
     }
 
     private void drawGame(Graphics g) {
-        Image startScreenBackground = new ImageIcon(
-                getClass().getResource("/Resource/Backgrounds/gameBackground.jpeg")
-        ).getImage();
-        g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        if (gameBackground != null) {
+            g.drawImage(gameBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        }
         g.setColor(Color.WHITE);
         g.setFont(gameFont);
-        g.drawString("Score: " + gameManager.getScore(), 1, 20);
-        g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 80, 20);
+        g.drawString("Score: " + gameManager.getScore(), 10, 25);
+        g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 80, 25);
 
         gameManager.getBall().render(g);
         gameManager.getPaddle().render(g);
@@ -53,29 +85,26 @@ public class Renderer extends JPanel {
     }
 
     private void drawGameOver(Graphics g) {
-        Image startScreenBackground = new ImageIcon(
-                getClass().getResource("/Resource/Backgrounds/gameOverBackground.gif")
-        ).getImage();
-        g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
-        g.setColor(Color.RED);
-        g.setFont(titleFont);
-        g.drawString("GAME OVER", GameManager.getWindowWidth() / 2 - 120, GameManager.getWindowHeight() / 2);
-        g.setColor(Color.BLACK);
+        if (gameOverBackground != null) {
+            g.drawImage(gameOverBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        }
+        g.setColor(Color.WHITE);
         g.setFont(subtitleFont);
-        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 100, GameManager.getWindowHeight() / 2 + 100);
+        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 150);
+        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 200);
     }
 
     private void drawYouWin(Graphics g) {
-        Image startScreenBackground = new ImageIcon(
-                getClass().getResource("/Resource/Backgrounds/youWinBackground.gif")
-        ).getImage();
-        g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        if (youWinBackground != null) {
+            g.drawImage(youWinBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        }
         g.setColor(Color.YELLOW);
         g.setFont(titleFont);
         g.drawString("YOU WIN!", GameManager.getWindowWidth() / 2 - 100, GameManager.getWindowHeight() / 2);
         g.setColor(Color.BLACK);
         g.setFont(subtitleFont);
-        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 100, GameManager.getWindowHeight() / 2 + 100);
+        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 50);
+        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 100);
     }
 
     @Override
@@ -84,7 +113,7 @@ public class Renderer extends JPanel {
 
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
         if (gameManager.getGameState() == 0) {
             drawStartScreen(g2d);
