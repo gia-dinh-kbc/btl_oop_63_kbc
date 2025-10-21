@@ -3,22 +3,22 @@ package MovableObject;
 import GameManager.GameObject;
 
 public abstract class MovableObject extends GameObject {
-    protected int dx;
-    protected int dy;
+    protected double dx;
+    protected double dy;
 
-    public int getDx() {
+    public double getDx() {
         return dx;
     }
 
-    public void setDx(int dx) {
+    public void setDx(double dx) {
         this.dx = dx;
     }
 
-    public int getDy() {
+    public double getDy() {
         return dy;
     }
 
-    public void setDy(int dy) {
+    public void setDy(double dy) {
         this.dy = dy;
     }
 

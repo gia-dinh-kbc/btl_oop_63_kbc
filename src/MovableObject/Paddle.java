@@ -10,7 +10,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Paddle extends MovableObject {
-    private int speed = 5;
+    private double speed = 5;
     private PowerUp currentPowerUp;
     private Rectangle2D.Double hitbox;
     private SpriteManager spriteManager;
@@ -45,7 +45,7 @@ public class Paddle extends MovableObject {
 
     @Override
     public void move() {
-        x += dx;
+        x += (int) dx;
 
         if (x < 0) {
             x = 0;
@@ -65,6 +65,6 @@ public class Paddle extends MovableObject {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(paddleSprite, x, y, width, height, null);
+        g.drawImage(paddleSprite, (int) x, (int) y, width, height, null);
     }
 }
