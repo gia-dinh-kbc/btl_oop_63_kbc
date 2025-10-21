@@ -10,7 +10,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 public class Paddle extends MovableObject {
-    private double speed = 5;
+    private double speed = 7;
     private PowerUp currentPowerUp;
     private Rectangle2D.Double hitbox;
     private SpriteManager spriteManager;
