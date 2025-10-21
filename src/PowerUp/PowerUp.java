@@ -26,7 +26,6 @@ public class PowerUp extends GameObject {
 
     @Override
     public void render(Graphics g) {
-        g.setColor(Color.YELLOW);
-        g.fillRect(x, y, width, height);
+
     }
 }

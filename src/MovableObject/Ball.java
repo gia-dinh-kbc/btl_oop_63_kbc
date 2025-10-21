@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Ball extends MovableObject {
-    private int speed = 2;
+    private double speed = 5;
     private Ellipse2D.Double hitbox;
     private SpriteManager spriteManager;
     private BufferedImage ballSprite;
@@ -27,13 +27,18 @@ public class Ball extends MovableObject {
     }
 
     public void reset(int x, int y) {
-        int[] angles = {-3, -2, -1, 1, 2, 3};
         this.x = x;
         this.y = y;
-        Random random = new Random();
-        this.dx = angles[new Random().nextInt(angles.length)];
-        this.dy = -speed;
         hitbox.setFrame(x, y, width, height);
+        this.dx = 0;
+        this.dy = 0;
+    }
+
+    public void launch() {
+        int[] angles = {-3, -2, -1, 1, 2, 3};
+        Random random = new Random();
+        this.dx = angles[new Random().nextInt(angles.length)] * speed / 3;
+        this.dy = -speed;
     }
 
     public void reverseX() {
@@ -58,6 +63,14 @@ public class Ball extends MovableObject {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(ballSprite, x, y, width, height, null);
+        g.drawImage(ballSprite, (int) x, (int) y, width, height, null);
+    }
+
+    public double getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 }

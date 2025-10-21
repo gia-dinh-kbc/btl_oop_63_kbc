@@ -43,6 +43,6 @@ public class Brick extends GameObject {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(brickSprite, x, y, width, height, null);
+        g.drawImage(brickSprite, (int) x, (int) y, width, height, null);
     }
 }
