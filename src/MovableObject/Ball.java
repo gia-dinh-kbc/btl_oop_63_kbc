@@ -65,6 +65,16 @@ public class Ball extends MovableObject {
         dy = dy / speedRatio;
     }
 
+    public void decreaseSpeed() {
+        this.speed = 3;
+
+        double currentSpeed = Math.sqrt(dx * dx + dy * dy);  // Tính tốc độ hiện tại của bóng
+        double speedRatio = currentSpeed / speed;  // Tính tỷ lệ giữa tốc độ hiện tại và tốc độ mới
+
+        dx = dx / speedRatio;
+        dy = dy / speedRatio;
+    }
+
     public void resetSpeed() {
         this.speed = 5;
         double currentSpeed = Math.sqrt(dx * dx + dy * dy);

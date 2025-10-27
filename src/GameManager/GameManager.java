@@ -9,6 +9,7 @@ import MovableObject.Paddle;
 import PowerUp.PowerUp;
 import PowerUp.ExpandsPaddlePowerUp;
 import PowerUp.FastBallPowerUp;
+import PowerUp.SlowBallPowerUp;
 
 import javax.swing.JFrame;
 import java.awt.event.KeyEvent;
@@ -292,21 +293,35 @@ public class GameManager implements KeyListener {
 
                     // Tạo ngẫu nhiên Power-Up với xác suất tùy chỉnh
                     double dropChance = Math.random();
-                    if (dropChance < 0.8) {
+                    if (dropChance < 0.8) {  // Giữ xác suất tạo PowerUp là 80%
                         PowerUp newPowerUp;
-                        if (Math.random() < 0.5) {
+
+                        // Thêm PowerUp mới: ExpandsPaddle, FastBall, SlowBall
+                        double powerUpType = Math.random();
+                        if (powerUpType < 0.33) {
+                            // PowerUp mở rộng paddle
                             newPowerUp = new ExpandsPaddlePowerUp(
                                     brick.getX() + brick.getWidth() / 2.0,
                                     brick.getY() + brick.getHeight() / 2.0,
                                     spriteManager
                             );
-                        } else {
+                        } else if (powerUpType < 0.66) {
+                            // PowerUp tăng tốc bóng
                             newPowerUp = new FastBallPowerUp(
                                     brick.getX() + brick.getWidth() / 2.0,
                                     brick.getY() + brick.getHeight() / 2.0,
                                     spriteManager
                             );
+                        } else {
+                            // PowerUp làm chậm bóng
+                            newPowerUp = new SlowBallPowerUp(
+                                    brick.getX() + brick.getWidth() / 2.0,
+                                    brick.getY() + brick.getHeight() / 2.0,
+                                    spriteManager
+                            );
                         }
+
+                        // Thêm PowerUp mới vào danh sách powerUps
                         powerUps.add(newPowerUp);
                     }
                 }

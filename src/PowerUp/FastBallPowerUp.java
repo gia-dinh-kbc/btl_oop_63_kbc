@@ -1,7 +1,6 @@
 package PowerUp;
 
 import MovableObject.Ball;
-import MovableObject.Paddle;
 import GameManager.GameManager;
 import GameManager.SpriteManager;
 
