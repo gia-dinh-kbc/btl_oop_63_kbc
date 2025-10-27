@@ -1,19 +1,16 @@
 package PowerUp;
 
 import MovableObject.Paddle;
+import GameManager.GameManager;
+import GameManager.SpriteManager;
 
 public class ExpandsPaddlePowerUp extends PowerUp {
-    public ExpandsPaddlePowerUp(int x, int y, int width, int height) {
-        super(x, y, width, height);
+    public ExpandsPaddlePowerUp(double x, double y, SpriteManager spriteManager) {
+        super(x, y, 32, 32, spriteManager.getSprite("ball_blue"));
     }
 
     @Override
-    public void applyEffect(Paddle paddle) {
-
-    }
-
-    @Override
-    public void removeEffect(Paddle paddle) {
-
+    public void applyEffect(GameManager game) {
+        game.getPaddle().expand();
     }
 }

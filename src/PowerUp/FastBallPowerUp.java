@@ -1,20 +1,30 @@
 package PowerUp;
 
+import MovableObject.Ball;
 import MovableObject.Paddle;
+import GameManager.GameManager;
+import GameManager.SpriteManager;
+
 
 public class FastBallPowerUp extends PowerUp {
 
-    public FastBallPowerUp(int x, int y, int width, int height) {
-        super(x, y, width, height);
+    public FastBallPowerUp(double x, double y, SpriteManager spriteManager) {
+        super(x, y, 32, 32, spriteManager.getSprite("ball_green"));
     }
 
     @Override
-    public void applyEffect(Paddle paddle) {
+    public void applyEffect(GameManager game) {
+        Ball ball = game.getBall();
+        ball.increaseSpeed();  // Tăng tốc bóng
 
-    }
-
-    @Override
-    public void removeEffect(Paddle paddle) {
-
+        // Tạo một thread mới để hủy hiệu lực sau 10 giây
+        new Thread(() -> {
+            try {
+                Thread.sleep(10000);  // Chờ 10 giây
+                ball.resetSpeed();    // Đặt lại tốc độ bóng về giá trị mặc định
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }).start();
     }
 }

@@ -7,6 +7,8 @@ import Brick.StrongBrick;
 import MovableObject.Ball;
 import MovableObject.Paddle;
 import PowerUp.PowerUp;
+import PowerUp.ExpandsPaddlePowerUp;
+import PowerUp.FastBallPowerUp;
 
 import javax.swing.JFrame;
 import java.awt.event.KeyEvent;
@@ -33,7 +35,7 @@ public class GameManager implements KeyListener {
     private List<PowerUp> powerUps = new ArrayList<>();          // Danh sách vật phẩm rơi ra
     private int score = 0;                                       // Điểm người chơi
     private int lives = 3;                                       // Số mạng
-    private int gameState = 1;                                   // Trạng thái game (0: bắt đầu, 1: đang chơi, 2: thua, 3: thắng)
+    private int gameState = 0;                                   // Trạng thái game (0: bắt đầu, 1: đang chơi, 2: thua, 3: thắng)
     private boolean ballAttached = true;                         // Bóng đang dính vào paddle hay không
     int currentLevel = 1; // Biến theo dõi màn hiện tại
 
@@ -52,7 +54,6 @@ public class GameManager implements KeyListener {
      * Reset toàn bộ giá trị và tạo lại bản đồ gạch.
      */
     public void startGame() {
-        gameState = 0;
         lives = 3;
         score = 0;
         ballAttached = true;
@@ -66,7 +67,6 @@ public class GameManager implements KeyListener {
         ball.setDy(0);
         bricks.clear();
         loadLevel(currentLevel); // Tải màn chơi
-
         gameState = 1; // Đưa game về trạng thái đang chơi
     }
 
@@ -80,7 +80,7 @@ public class GameManager implements KeyListener {
 
         if (level == 1) {
             for (int i = 0; i < 10; i++) {
-                for (int j = 1; j <= 2; j++) {
+                for (int j = 1; j <= 3; j++) {
                     if (j == 1) {
                         Brick brick = new StrongBrick(i * width, j * height + 100, width - 1, height - 1, spriteManager);
                         bricks.add(brick);
@@ -128,17 +128,36 @@ public class GameManager implements KeyListener {
             checkCollisions();
         }
 
+        // --- Cập nhật trạng thái Power-Up ---
+        Iterator<PowerUp> pIterator = powerUps.iterator();
+        while (pIterator.hasNext()) {
+            PowerUp p = pIterator.next();
+            p.update();
+
+            // Nếu paddle bắt được Power-Up
+            if (paddle.getHitbox().intersects(p.getHitbox().getBounds2D())) {
+                p.applyEffect(this);
+                soundManager.playSound("powerup");
+                pIterator.remove();
+            }
+            // Nếu rơi quá đáy màn hình
+            else if (p.getY() > WINDOW_HEIGHT) {
+                pIterator.remove();
+            }
+        }
+
         // Nếu bóng rơi ra khỏi màn hình
         if (ball.getY() > WINDOW_HEIGHT && !ballAttached) {
             lives--;
             soundManager.playSound("lose");
-
+            resetAllPowerUps();
             if (lives == 0) {
                 gameOver(); // Thua cuộc
             } else {
                 ballAttached = true; // Reset bóng về paddle
                 ball.setDx(0);
                 ball.setDy(0);
+                ball.resetSpeed();
             }
         }
 
@@ -270,6 +289,26 @@ public class GameManager implements KeyListener {
                     score += 100;
                     iterator.remove();
                     soundManager.playSound("break");
+
+                    // Tạo ngẫu nhiên Power-Up với xác suất tùy chỉnh
+                    double dropChance = Math.random();
+                    if (dropChance < 0.8) {
+                        PowerUp newPowerUp;
+                        if (Math.random() < 0.5) {
+                            newPowerUp = new ExpandsPaddlePowerUp(
+                                    brick.getX() + brick.getWidth() / 2.0,
+                                    brick.getY() + brick.getHeight() / 2.0,
+                                    spriteManager
+                            );
+                        } else {
+                            newPowerUp = new FastBallPowerUp(
+                                    brick.getX() + brick.getWidth() / 2.0,
+                                    brick.getY() + brick.getHeight() / 2.0,
+                                    spriteManager
+                            );
+                        }
+                        powerUps.add(newPowerUp);
+                    }
                 }
 
                 break; // Tránh va chạm nhiều gạch cùng lúc
@@ -298,6 +337,17 @@ public class GameManager implements KeyListener {
             ball.setDy(-currentSpeed * Math.cos(bounceAngle));
             soundManager.playSound("bounce");
         }
+    }
+
+    public void resetAllPowerUps() {
+        // Reset paddle kích thước gốc
+        paddle.resetSize();
+
+        // Reset tốc độ bóng
+        ball.resetSpeed();
+
+        // Xóa toàn bộ vật phẩm đang rơi
+        powerUps.clear();
     }
 
     // Các getter hỗ trợ cho renderer hoặc UI
@@ -383,7 +433,7 @@ public class GameManager implements KeyListener {
                     // --- Game Loop ---
                     new Thread(
                             () -> {
-                                final double TARGET_FPS = 35.0;
+                                final double TARGET_FPS = 30.0;
                                 final long OPTIMAL_TIME = (long) (1000000000 / TARGET_FPS);
                                 long lastLoopTime = System.nanoTime();
 

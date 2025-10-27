@@ -69,6 +69,17 @@ public class SoundManager {
         }
     }
 
+    public void preLoadAllSound() {
+        for (String sound : soundEffects.keySet()) {
+            Clip clip = soundEffects.get((sound));
+            if (clip != null) {
+                synchronized (clip) {
+                    clip.setFramePosition(0);
+                }
+            }
+        }
+    }
+
     /**
      * Play sound effect asynchronously.
      * @param name sound effect name

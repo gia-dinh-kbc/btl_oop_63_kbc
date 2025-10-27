@@ -82,6 +82,10 @@ public class Renderer extends JPanel {
         for (var brick : gameManager.getBricks()) {
             brick.render(g);
         }
+
+        for (var powerUp : gameManager.getPowerUps()) {
+            powerUp.render(g);
+        }
     }
 
     private void drawGameOver(Graphics g) {

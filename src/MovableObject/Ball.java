@@ -35,10 +35,9 @@ public class Ball extends MovableObject {
     }
 
     public void launch() {
-        int[] angles = {-3, -2, -1, 1, 2, 3};
-        Random random = new Random();
-        this.dx = angles[new Random().nextInt(angles.length)] * speed / 3;
-        this.dy = -speed;
+        double angle = Math.toRadians(60);
+        dx = speed * Math.cos(angle);
+        dy = -speed * Math.sin(angle);
     }
 
     public void reverseX() {
@@ -54,6 +53,25 @@ public class Ball extends MovableObject {
         x += dx;
         y += dy;
         hitbox.setFrame(x, y, width, height);
+    }
+
+    public void increaseSpeed() {
+        this.speed = 8;
+
+        double currentSpeed = Math.sqrt(dx * dx + dy * dy);  // Tính tốc độ hiện tại của bóng
+        double speedRatio = currentSpeed / speed;  // Tính tỷ lệ giữa tốc độ hiện tại và tốc độ mới
+
+        dx = dx / speedRatio;
+        dy = dy / speedRatio;
+    }
+
+    public void resetSpeed() {
+        this.speed = 5;
+        double currentSpeed = Math.sqrt(dx * dx + dy * dy);
+        double speedRatio = currentSpeed / speed;
+
+        dx = dx / speedRatio;
+        dy = dy / speedRatio;
     }
 
     @Override
