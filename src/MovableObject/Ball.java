@@ -6,7 +6,6 @@ import java.awt.Graphics;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
-import java.util.Random;
 
 public class Ball extends MovableObject {
     private double speed = 5;
@@ -34,19 +33,32 @@ public class Ball extends MovableObject {
         this.dy = 0;
     }
 
+    private void normalizeSpeed() {
+        double currentSpeed = Math.sqrt(dx * dx + dy * dy);
+        if (currentSpeed > 0) {
+            dx = (dx / currentSpeed) * speed;
+            dy = (dy / currentSpeed) * speed;
+        }
+    }
+
     public void launch() {
-        int[] angles = {-3, -2, -1, 1, 2, 3};
-        Random random = new Random();
-        this.dx = angles[new Random().nextInt(angles.length)] * speed / 3;
-        this.dy = -speed;
+        double angleRange = Math.toRadians(60);
+        double angle = Math.toRadians(-90) + (Math.random() * angleRange - angleRange/2);
+
+        this.dx = speed * Math.cos(angle);
+        this.dy = speed * Math.sin(angle);
+
+        normalizeSpeed();
     }
 
     public void reverseX() {
         dx = -dx;
+        normalizeSpeed();
     }
 
     public void reverseY() {
         dy = -dy;
+        normalizeSpeed();
     }
 
     @Override

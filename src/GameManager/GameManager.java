@@ -33,17 +33,18 @@ public class GameManager implements KeyListener {
     private List<PowerUp> powerUps = new ArrayList<>();          // Danh sách vật phẩm rơi ra
     private int score = 0;                                       // Điểm người chơi
     private int lives = 3;                                       // Số mạng
-    private int gameState = 1;                                   // Trạng thái game (0: bắt đầu, 1: đang chơi, 2: thua, 3: thắng)
+    private int gameState;                                   // Trạng thái game (0: bắt đầu, 1: đang chơi, 2: thua, 3: thắng)
     private boolean ballAttached = true;                         // Bóng đang dính vào paddle hay không
     int currentLevel = 1; // Biến theo dõi màn hiện tại
 
     // Kích thước cửa sổ game
-    private static final int WINDOW_WIDTH = 652;
+    private static final int WINDOW_WIDTH = 640;
     private static final int WINDOW_HEIGHT = 800;
 
     // Khi khởi tạo GameManager
     public GameManager() {
         soundManager.stopAllSounds();
+        soundManager.preLoadAllSound();
         soundManager.playLoopingSound("start"); // Phát nhạc nền khởi đầu
     }
 
@@ -68,6 +69,9 @@ public class GameManager implements KeyListener {
         loadLevel(currentLevel); // Tải màn chơi
 
         gameState = 1; // Đưa game về trạng thái đang chơi
+
+        soundManager.stopAllSounds();
+        soundManager.playLoopingSound("background");
     }
 
     /**
@@ -145,12 +149,6 @@ public class GameManager implements KeyListener {
         // Nếu phá hết gạch → chuyển màn or win
         if (bricks.isEmpty()) {
             nextLevel();
-        }
-
-        // Phát nhạc nền nếu chưa chạy
-        if (gameState == 1 && !soundManager.isPlaying("background")) {
-            soundManager.stopAllSounds();
-            soundManager.playLoopingSound("background");
         }
     }
 
@@ -255,14 +253,6 @@ public class GameManager implements KeyListener {
                 } else {
                     ball.reverseY();
                     ball.reverseX();
-                }
-
-                // Giữ nguyên tốc độ sau khi đổi hướng
-                double newSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
-                if (newSpeed > 0) {
-                    double speedRatio = currentSpeed / newSpeed;
-                    ball.setDx(ball.getDx() * speedRatio);
-                    ball.setDy(ball.getDy() * speedRatio);
                 }
 
                 // Nếu gạch bị phá → tăng điểm và xóa khỏi danh sách
@@ -383,7 +373,7 @@ public class GameManager implements KeyListener {
                     // --- Game Loop ---
                     new Thread(
                             () -> {
-                                final double TARGET_FPS = 35.0;
+                                final double TARGET_FPS = 60.0;
                                 final long OPTIMAL_TIME = (long) (1000000000 / TARGET_FPS);
                                 long lastLoopTime = System.nanoTime();
 
