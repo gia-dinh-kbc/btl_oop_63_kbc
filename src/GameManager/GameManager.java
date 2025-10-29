@@ -11,6 +11,7 @@ import PowerUp.ExpandsPaddlePowerUp;
 import PowerUp.FastBallPowerUp;
 import PowerUp.SlowBallPowerUp;
 import PowerUp.SplitBallPowerUp;
+import PowerUp.ExtraLifePowerUp;
 
 import javax.swing.JFrame;
 import java.awt.event.KeyEvent;
@@ -44,12 +45,17 @@ public class GameManager implements KeyListener {
     private List<PowerUp> powerUps = new ArrayList<>();          // Danh sách vật phẩm rơi ra
     private int score = 0;                                       // Điểm người chơi
     private int lives = 3;                                       // Số mạng
+
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
     private int gameState = 0;                                   // Trạng thái game (0: bắt đầu, 1: đang chơi, 2: thua, 3: thắng)
     private boolean ballAttached = true;                         // Bóng đang dính vào paddle hay không
     int currentLevel = 1; // Biến theo dõi màn hiện tại
 
     // Kích thước cửa sổ game
-    private static final int WINDOW_WIDTH = 670;
+    private static final int WINDOW_WIDTH = 652;
     private static final int WINDOW_HEIGHT = 800;
 
     // Khi khởi tạo GameManager
@@ -357,10 +363,12 @@ public class GameManager implements KeyListener {
 
                         // Tạo ngẫu nhiên Power-Up với xác suất tùy chỉnh
                         double dropChance = Math.random();
-                        if (dropChance < 0.8) {  // Giữ xác suất tạo PowerUp là 80%
+
+                        // Giữ xác suất tạo PowerUp là 80%
+                        if (dropChance < 0.8) {
                             PowerUp newPowerUp;
 
-                            // Thêm PowerUp mới: ExpandsPaddle, FastBall, SlowBall, SplitBall
+                            // Tạo các PowerUp
                             double powerUpType = Math.random();
                             if (powerUpType < 0.25) {
                                 // PowerUp mở rộng paddle
@@ -383,9 +391,16 @@ public class GameManager implements KeyListener {
                                         brick.getY() + brick.getHeight() / 2.0,
                                         spriteManager
                                 );
-                            } else {
+                            } else if (powerUpType < 0.9) {
                                 // PowerUp tăng thêm 2 bóng
                                 newPowerUp = new SplitBallPowerUp(
+                                        brick.getX() + brick.getWidth() / 2.0,
+                                        brick.getY() + brick.getHeight() / 2.0,
+                                        spriteManager
+                                );
+                            } else {
+                                // PowerUp tăng thêm 1 mạng
+                                newPowerUp = new ExtraLifePowerUp(
                                         brick.getX() + brick.getWidth() / 2.0,
                                         brick.getY() + brick.getHeight() / 2.0,
                                         spriteManager
@@ -548,5 +563,4 @@ public class GameManager implements KeyListener {
                             .start();
                 });
     }
-
 }

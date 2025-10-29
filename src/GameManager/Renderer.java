@@ -76,7 +76,7 @@ public class Renderer extends JPanel {
         g.setColor(Color.WHITE);
         g.setFont(gameFont);
         g.drawString("Score: " + gameManager.getScore(), 10, 25);
-        g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 80, 25);
+        g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 120, 25);
 
         for (Ball b : gameManager.getBalls()) {
             b.render(g);
