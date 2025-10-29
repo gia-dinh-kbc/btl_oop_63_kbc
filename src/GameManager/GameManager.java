@@ -50,6 +50,8 @@ public class GameManager implements KeyListener {
     private int score = 0;                                       // Điểm người chơi
     private int lives = 3;
     private boolean isStartingGame = false;// Số mạng
+    private boolean isBackgroundPlaying = false; // cờ để kiểm soát nhạc nền
+
 
     public void setLives(int lives) {
         this.lives = lives;
@@ -213,10 +215,11 @@ public class GameManager implements KeyListener {
             nextLevel();
         }
 
-        // Phát nhạc nền nếu chưa chạy
-        if (gameState == 1 && !soundManager.isPlaying("background")) {
+        // Phát nhạc nền nếu đang chơi và chưa phát
+        if (gameState == 1 && !isBackgroundPlaying) {
             soundManager.stopAllSounds();
             soundManager.playLoopingSound("background");
+            isBackgroundPlaying = true; // đánh dấu đã phát nhạc nền
         }
     }
 
@@ -225,6 +228,7 @@ public class GameManager implements KeyListener {
      */
     private void nextLevel() {
         powerUps.clear();
+        isBackgroundPlaying = false;
         if (currentLevel == 1 && score != 0) {
             currentLevel = 2;
             soundManager.playSound("win");
@@ -267,6 +271,7 @@ public class GameManager implements KeyListener {
         gameState = 2;
         soundManager.stopAllSounds();
         soundManager.playLoopingSound("gameOver");
+        isBackgroundPlaying = false;
     }
 
     /** Khi chiến thắng */
@@ -274,6 +279,7 @@ public class GameManager implements KeyListener {
         gameState = 3;
         soundManager.stopAllSounds();
         soundManager.playLoopingSound("win");
+        isBackgroundPlaying = false;
     }
 
     /**
