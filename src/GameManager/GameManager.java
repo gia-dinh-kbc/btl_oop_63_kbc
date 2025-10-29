@@ -49,7 +49,7 @@ public class GameManager implements KeyListener {
     int currentLevel = 1; // Biến theo dõi màn hiện tại
 
     // Kích thước cửa sổ game
-    private static final int WINDOW_WIDTH = 652;
+    private static final int WINDOW_WIDTH = 670;
     private static final int WINDOW_HEIGHT = 800;
 
     // Khi khởi tạo GameManager
@@ -91,7 +91,7 @@ public class GameManager implements KeyListener {
 
         if (level == 1) {
             for (int i = 0; i < 10; i++) {
-                for (int j = 1; j <= 3; j++) {
+                for (int j = 2; j <= 3; j++) {
                     if (j == 1) {
                         Brick brick = new StrongBrick(i * width, j * height + 100, width - 1, height - 1, spriteManager);
                         bricks.add(brick);
@@ -124,13 +124,16 @@ public class GameManager implements KeyListener {
 
         // Nếu bóng còn dính paddle thì di chuyển theo paddle
         if (ballAttached) {
+            // Safe to use for-each here since we're not modifying the list
             for (Ball b : balls) {
                 b.setX(paddle.getX() + (paddle.getWidth() / 2) - (b.getWidth() / 2));
                 b.setY(paddle.getY() - b.getHeight());
             }
         } else {
             // Cập nhật tất cả các bóng trong game
-            for (Ball b : balls) {
+            // Use a copy to avoid ConcurrentModificationException when powerups add balls
+            List<Ball> ballsCopy = new ArrayList<>(balls);
+            for (Ball b : ballsCopy) {
                 b.update(); // Cập nhật vị trí của từng bóng
             }
         }
@@ -161,6 +164,9 @@ public class GameManager implements KeyListener {
         }
 
         // Nếu bóng rơi ra khỏi màn hình
+        // Use a flag to track if we need to handle life loss
+        boolean needToLoseLife = false;
+
         Iterator<Ball> ballIterator = balls.iterator();
         while (ballIterator.hasNext()) {
             Ball b = ballIterator.next();
@@ -168,23 +174,27 @@ public class GameManager implements KeyListener {
                 // Nếu bóng rơi ra khỏi màn hình
                 ballIterator.remove(); // Xóa bóng khỏi danh sách
 
-                // Nếu không còn bóng nào -> trừ mạng
+                // Nếu không còn bóng nào -> đánh dấu cần trừ mạng
                 if (balls.isEmpty()) {
-                    lives--;  // Trừ mạng nếu không còn bóng nào
-                    soundManager.playSound("lose");
-                    resetAllPowerUps();  // Reset tất cả PowerUps
-
-                    if (lives == 0) {
-                        gameOver(); // Thua cuộc
-                    } else {
-                        // Nếu còn mạng, reset bóng
-                        ballAttached = true;
-                        resetBalls();
-                    }
+                    needToLoseLife = true;
+                    break; // Exit the loop immediately
                 }
             }
         }
 
+        // Handle life loss AFTER we've finished iterating
+        if (needToLoseLife) {
+            lives--;  // Trừ mạng nếu không còn bóng nào
+            soundManager.playSound("lose");
+            resetAllPowerUps();  // Reset tất cả PowerUps
+
+            if (lives == 0) {
+                gameOver(); // Thua cuộc
+            } else {
+                // Nếu còn mạng, reset bóng
+                resetBalls();
+            }
+        }
 
         // Nếu phá hết gạch → chuyển màn or win
         if (bricks.isEmpty()) {
@@ -202,6 +212,7 @@ public class GameManager implements KeyListener {
      * Khi qua màn → sang level mới hoặc thắng chung cuộc.
      */
     private void nextLevel() {
+        powerUps.clear();
         if (currentLevel == 1 && score != 0) {
             currentLevel = 2;
             soundManager.playSound("win");
@@ -212,19 +223,32 @@ public class GameManager implements KeyListener {
             paddle.setX(WINDOW_WIDTH / 2 - paddle.getWidth() / 2);
             paddle.setY(700);
             loadLevel(currentLevel);
+            resetBalls();
         } else {
             youWin();
         }
     }
 
     public void resetBalls() {
-        // Xóa tất cả các bóng trong game
-        balls.clear();
+        balls.clear();  // Xóa tất cả các bóng trong game
 
-        // Tạo lại một bóng chính
-        Ball mainBall = new Ball(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 24, spriteManager);
-        balls.add(mainBall);  // Thêm bóng chính vào danh sách bóng
+        // Tạo lại một bóng chính và đặt vào vị trí trên paddle
+        Ball newBall = new Ball(0, 0, 24, spriteManager);
+
+        // Đặt bóng tại vị trí trên paddle
+        double ballX = paddle.getX() + (paddle.getWidth() / 2.0) - (newBall.getWidth() / 2.0);
+        double ballY = paddle.getY() - newBall.getHeight();
+
+        newBall.setX(ballX);
+        newBall.setY(ballY);
+        newBall.setDx(0);  // Đảm bảo bóng không di chuyển khi bắt đầu lại
+        newBall.setDy(0);
+        newBall.resetSpeed();  // Đặt lại tốc độ
+
+        balls.add(newBall);  // Thêm bóng vào danh sách
+        ballAttached = true;  // Đặt lại trạng thái bóng dính vào paddle
     }
+
 
     /** Khi thua cuộc */
     public void gameOver() {
@@ -244,8 +268,11 @@ public class GameManager implements KeyListener {
      * Xử lý va chạm giữa bóng, tường, gạch và paddle.
      */
     public void checkCollisions() {
+        // Use a copy to avoid ConcurrentModificationException when powerups add balls
+        List<Ball> ballsCopy = new ArrayList<>(balls);
+
         // Kiểm tra va chạm cho tất cả các bóng trong danh sách balls
-        for (Ball b : balls) {
+        for (Ball b : ballsCopy) {
 
             // --- Va chạm với tường ---
             if (b.getX() <= 0) {
@@ -426,8 +453,9 @@ public class GameManager implements KeyListener {
 
     /** Phóng bóng ra khỏi paddle */
     private void launchBall() {
+        Ball mainBall = balls.get(0);
         ballAttached = false;
-        ball.launch();
+        mainBall.launch();
         soundManager.playSound("bounce");
     }
 
@@ -445,9 +473,9 @@ public class GameManager implements KeyListener {
             paddle.moveRight();
         } else if (key == KeyEvent.VK_SPACE) {
             if (gameState == 0 || gameState == 2 || gameState == 3) {
-                startGame(); // Bắt đầu lại game
+                startGame();  // Bắt đầu lại game
             } else if (gameState == 1 && ballAttached) {
-                launchBall(); // Phóng bóng
+                launchBall();  // Phóng bóng
             }
         }
     }

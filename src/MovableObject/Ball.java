@@ -95,7 +95,7 @@ public class Ball extends MovableObject {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(ballSprite, (int) x, (int) y, width, height, null);
+        g.drawImage(ballSprite, (int) Math.round(x), (int) Math.round(y), width, height, null);
     }
 
     public double getSpeed() {

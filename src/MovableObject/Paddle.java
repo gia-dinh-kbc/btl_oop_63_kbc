@@ -67,7 +67,7 @@ public class Paddle extends MovableObject {
 
     @Override
     public void render(Graphics g) {
-        g.drawImage(paddleSprite, (int) x, (int) y, width, height, null);
+        g.drawImage(paddleSprite, (int) Math.round(x), (int) Math.round(y), width, height, null);
     }
 
     // Mở rộng paddle (chỉ khi chưa mở rộng)
