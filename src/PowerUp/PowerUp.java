@@ -17,7 +17,7 @@ import java.awt.image.BufferedImage;
  * - Khi Paddle bắt được → gọi applyEffect(GameManager)
  */
 public abstract class PowerUp extends GameObject {
-    protected double fallSpeed = 3; // tốc độ rơi
+    protected double fallSpeed = 2; // tốc độ rơi
     protected Rectangle2D.Double hitbox; // vùng va chạm
     protected BufferedImage sprite; // hình hiển thị vật phẩm
 

@@ -10,6 +10,7 @@ import PowerUp.PowerUp;
 import PowerUp.ExpandsPaddlePowerUp;
 import PowerUp.FastBallPowerUp;
 import PowerUp.SlowBallPowerUp;
+import PowerUp.SplitBallPowerUp;
 
 import javax.swing.JFrame;
 import java.awt.event.KeyEvent;
@@ -32,6 +33,13 @@ public class GameManager implements KeyListener {
     // Khởi tạo các đối tượng chính trong game
     private Paddle paddle = new Paddle(0, 0, 128, 24, spriteManager);
     private Ball ball = new Ball(0, 0, 24, spriteManager);
+    private List<Ball> balls = new ArrayList<>();
+    public void addBall(Ball ball) {
+        balls.add(ball);  // Thêm bóng vào danh sách balls
+    }
+    public List<Ball> getBalls() {
+        return balls;  // Trả về danh sách tất cả các bóng
+    }
     private List<Brick> bricks = new ArrayList<>();              // Danh sách các viên gạch
     private List<PowerUp> powerUps = new ArrayList<>();          // Danh sách vật phẩm rơi ra
     private int score = 0;                                       // Điểm người chơi
@@ -63,9 +71,11 @@ public class GameManager implements KeyListener {
         // Đặt vị trí paddle và bóng
         paddle.setX(WINDOW_WIDTH / 2 - paddle.getWidth() / 2);
         paddle.setY(700);
+        balls.clear();
         ball.reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
         ball.setDx(0);
         ball.setDy(0);
+        balls.add(ball);
         bricks.clear();
         loadLevel(currentLevel); // Tải màn chơi
         gameState = 1; // Đưa game về trạng thái đang chơi
@@ -112,14 +122,17 @@ public class GameManager implements KeyListener {
     public void updateGame() {
         if (gameState != 1) return; // Nếu không phải đang chơi thì bỏ qua
 
-        // Nếu bóng còn dính paddle → di chuyển theo paddle
+        // Nếu bóng còn dính paddle thì di chuyển theo paddle
         if (ballAttached) {
-            double ballX = paddle.getX() + (paddle.getWidth() / 2) - (ball.getWidth() / 2);
-            double ballY = paddle.getY() - ball.getHeight();
-            ball.setX(ballX);
-            ball.setY(ballY);
+            for (Ball b : balls) {
+                b.setX(paddle.getX() + (paddle.getWidth() / 2) - (b.getWidth() / 2));
+                b.setY(paddle.getY() - b.getHeight());
+            }
         } else {
-            ball.update(); // Cập nhật vị trí bóng
+            // Cập nhật tất cả các bóng trong game
+            for (Ball b : balls) {
+                b.update(); // Cập nhật vị trí của từng bóng
+            }
         }
 
         paddle.update();
@@ -148,19 +161,30 @@ public class GameManager implements KeyListener {
         }
 
         // Nếu bóng rơi ra khỏi màn hình
-        if (ball.getY() > WINDOW_HEIGHT && !ballAttached) {
-            lives--;
-            soundManager.playSound("lose");
-            resetAllPowerUps();
-            if (lives == 0) {
-                gameOver(); // Thua cuộc
-            } else {
-                ballAttached = true; // Reset bóng về paddle
-                ball.setDx(0);
-                ball.setDy(0);
-                ball.resetSpeed();
+        Iterator<Ball> ballIterator = balls.iterator();
+        while (ballIterator.hasNext()) {
+            Ball b = ballIterator.next();
+            if (b.getY() > WINDOW_HEIGHT) {
+                // Nếu bóng rơi ra khỏi màn hình
+                ballIterator.remove(); // Xóa bóng khỏi danh sách
+
+                // Nếu không còn bóng nào -> trừ mạng
+                if (balls.isEmpty()) {
+                    lives--;  // Trừ mạng nếu không còn bóng nào
+                    soundManager.playSound("lose");
+                    resetAllPowerUps();  // Reset tất cả PowerUps
+
+                    if (lives == 0) {
+                        gameOver(); // Thua cuộc
+                    } else {
+                        // Nếu còn mạng, reset bóng
+                        ballAttached = true;
+                        resetBalls();
+                    }
+                }
             }
         }
+
 
         // Nếu phá hết gạch → chuyển màn or win
         if (bricks.isEmpty()) {
@@ -192,6 +216,16 @@ public class GameManager implements KeyListener {
             youWin();
         }
     }
+
+    public void resetBalls() {
+        // Xóa tất cả các bóng trong game
+        balls.clear();
+
+        // Tạo lại một bóng chính
+        Ball mainBall = new Ball(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 24, spriteManager);
+        balls.add(mainBall);  // Thêm bóng chính vào danh sách bóng
+    }
+
     /** Khi thua cuộc */
     public void gameOver() {
         gameState = 2;
@@ -210,149 +244,161 @@ public class GameManager implements KeyListener {
      * Xử lý va chạm giữa bóng, tường, gạch và paddle.
      */
     public void checkCollisions() {
-        // --- Va chạm với tường ---
-        if (ball.getX() <= 0) {
-            ball.setX(0);
-            ball.reverseX();
-            soundManager.playSound("bounce");
-        } else if (ball.getX() + ball.getWidth() >= WINDOW_WIDTH) {
-            ball.setX(WINDOW_WIDTH - ball.getWidth());
-            ball.reverseX();
-            soundManager.playSound("bounce");
-        }
+        // Kiểm tra va chạm cho tất cả các bóng trong danh sách balls
+        for (Ball b : balls) {
 
-        if (ball.getY() <= 0) {
-            ball.setY(0);
-            ball.reverseY();
-            soundManager.playSound("bounce");
-        }
+            // --- Va chạm với tường ---
+            if (b.getX() <= 0) {
+                b.setX(0);
+                b.reverseX();
+                soundManager.playSound("bounce");
+            } else if (b.getX() + b.getWidth() >= WINDOW_WIDTH) {
+                b.setX(WINDOW_WIDTH - b.getWidth());
+                b.reverseX();
+                soundManager.playSound("bounce");
+            }
 
-        // --- Va chạm với gạch ---
-        Iterator<Brick> iterator = bricks.iterator();
-        while (iterator.hasNext()) {
-            Brick brick = iterator.next();
+            if (b.getY() <= 0) {
+                b.setY(0);
+                b.reverseY();
+                soundManager.playSound("bounce");
+            }
 
-            if (ball.getHitbox().intersects(brick.getHitbox().getBounds2D())) {
-                // Tính toán vùng chồng lấn để xác định hướng phản xạ
-                double ballX = ball.getX();
-                double ballY = ball.getY();
-                int ballWidth = ball.getWidth();
-                int ballHeight = ball.getHeight();
+            // --- Va chạm với gạch ---
+            Iterator<Brick> iterator = bricks.iterator();
+            while (iterator.hasNext()) {
+                Brick brick = iterator.next();
 
-                double brickX = brick.getX();
-                double brickY = brick.getY();
-                int brickWidth = brick.getWidth();
-                int brickHeight = brick.getHeight();
+                if (b.getHitbox().intersects(brick.getHitbox().getBounds2D())) {
+                    // Tính toán vùng chồng lấn để xác định hướng phản xạ
+                    double ballX = b.getX();
+                    double ballY = b.getY();
+                    int ballWidth = b.getWidth();
+                    int ballHeight = b.getHeight();
 
-                double overlapLeft = (ballX + ballWidth) - brickX;
-                double overlapRight = (brickX + brickWidth) - ballX;
-                double overlapTop = (ballY + ballHeight) - brickY;
-                double overlapBottom = (brickY + brickHeight) - ballY;
+                    double brickX = brick.getX();
+                    double brickY = brick.getY();
+                    int brickWidth = brick.getWidth();
+                    int brickHeight = brick.getHeight();
 
-                double minOverlap = Math.min(
-                        Math.min(overlapLeft, overlapRight),
-                        Math.min(overlapTop, overlapBottom)
-                );
+                    double overlapLeft = (ballX + ballWidth) - brickX;
+                    double overlapRight = (brickX + brickWidth) - ballX;
+                    double overlapTop = (ballY + ballHeight) - brickY;
+                    double overlapBottom = (brickY + brickHeight) - ballY;
 
-                double currentSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
+                    double minOverlap = Math.min(
+                            Math.min(overlapLeft, overlapRight),
+                            Math.min(overlapTop, overlapBottom)
+                    );
 
-                brick.takeHit(); // Giảm máu gạch
-                soundManager.playSound("hit");
+                    double currentSpeed = Math.sqrt(b.getDx() * b.getDx() + b.getDy() * b.getDy());
 
-                // Xác định hướng bật lại
-                if (minOverlap == overlapTop && ball.getDy() > 0) {
-                    ball.setY(brickY - ballHeight);
-                    ball.reverseY();
-                } else if (minOverlap == overlapBottom && ball.getDy() < 0) {
-                    ball.setY(brickY + brickHeight);
-                    ball.reverseY();
-                } else if (minOverlap == overlapLeft && ball.getDx() > 0) {
-                    ball.setX(brickX - ballWidth);
-                    ball.reverseX();
-                } else if (minOverlap == overlapRight && ball.getDx() < 0) {
-                    ball.setX(brickX + brickWidth);
-                    ball.reverseX();
-                } else {
-                    ball.reverseY();
-                    ball.reverseX();
-                }
+                    brick.takeHit(); // Giảm máu gạch
+                    soundManager.playSound("hit");
 
-                // Giữ nguyên tốc độ sau khi đổi hướng
-                double newSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
-                if (newSpeed > 0) {
-                    double speedRatio = currentSpeed / newSpeed;
-                    ball.setDx(ball.getDx() * speedRatio);
-                    ball.setDy(ball.getDy() * speedRatio);
-                }
-
-                // Nếu gạch bị phá → tăng điểm và xóa khỏi danh sách
-                if (brick.isDestroyed()) {
-                    score += 100;
-                    iterator.remove();
-                    soundManager.playSound("break");
-
-                    // Tạo ngẫu nhiên Power-Up với xác suất tùy chỉnh
-                    double dropChance = Math.random();
-                    if (dropChance < 0.8) {  // Giữ xác suất tạo PowerUp là 80%
-                        PowerUp newPowerUp;
-
-                        // Thêm PowerUp mới: ExpandsPaddle, FastBall, SlowBall
-                        double powerUpType = Math.random();
-                        if (powerUpType < 0.33) {
-                            // PowerUp mở rộng paddle
-                            newPowerUp = new ExpandsPaddlePowerUp(
-                                    brick.getX() + brick.getWidth() / 2.0,
-                                    brick.getY() + brick.getHeight() / 2.0,
-                                    spriteManager
-                            );
-                        } else if (powerUpType < 0.66) {
-                            // PowerUp tăng tốc bóng
-                            newPowerUp = new FastBallPowerUp(
-                                    brick.getX() + brick.getWidth() / 2.0,
-                                    brick.getY() + brick.getHeight() / 2.0,
-                                    spriteManager
-                            );
-                        } else {
-                            // PowerUp làm chậm bóng
-                            newPowerUp = new SlowBallPowerUp(
-                                    brick.getX() + brick.getWidth() / 2.0,
-                                    brick.getY() + brick.getHeight() / 2.0,
-                                    spriteManager
-                            );
-                        }
-
-                        // Thêm PowerUp mới vào danh sách powerUps
-                        powerUps.add(newPowerUp);
+                    // Xác định hướng bật lại
+                    if (minOverlap == overlapTop && b.getDy() > 0) {
+                        b.setY(brickY - ballHeight);
+                        b.reverseY();
+                    } else if (minOverlap == overlapBottom && b.getDy() < 0) {
+                        b.setY(brickY + brickHeight);
+                        b.reverseY();
+                    } else if (minOverlap == overlapLeft && b.getDx() > 0) {
+                        b.setX(brickX - ballWidth);
+                        b.reverseX();
+                    } else if (minOverlap == overlapRight && b.getDx() < 0) {
+                        b.setX(brickX + brickWidth);
+                        b.reverseX();
+                    } else {
+                        b.reverseY();
+                        b.reverseX();
                     }
-                }
 
-                break; // Tránh va chạm nhiều gạch cùng lúc
+                    // Giữ nguyên tốc độ sau khi đổi hướng
+                    double newSpeed = Math.sqrt(b.getDx() * b.getDx() + b.getDy() * b.getDy());
+                    if (newSpeed > 0) {
+                        double speedRatio = currentSpeed / newSpeed;
+                        b.setDx(b.getDx() * speedRatio);
+                        b.setDy(b.getDy() * speedRatio);
+                    }
+
+                    // Nếu gạch bị phá → tăng điểm và xóa khỏi danh sách
+                    if (brick.isDestroyed()) {
+                        score += 100;
+                        iterator.remove();
+                        soundManager.playSound("break");
+
+                        // Tạo ngẫu nhiên Power-Up với xác suất tùy chỉnh
+                        double dropChance = Math.random();
+                        if (dropChance < 0.8) {  // Giữ xác suất tạo PowerUp là 80%
+                            PowerUp newPowerUp;
+
+                            // Thêm PowerUp mới: ExpandsPaddle, FastBall, SlowBall, SplitBall
+                            double powerUpType = Math.random();
+                            if (powerUpType < 0.25) {
+                                // PowerUp mở rộng paddle
+                                newPowerUp = new ExpandsPaddlePowerUp(
+                                        brick.getX() + brick.getWidth() / 2.0,
+                                        brick.getY() + brick.getHeight() / 2.0,
+                                        spriteManager
+                                );
+                            } else if (powerUpType < 0.5) {
+                                // PowerUp tăng tốc bóng
+                                newPowerUp = new FastBallPowerUp(
+                                        brick.getX() + brick.getWidth() / 2.0,
+                                        brick.getY() + brick.getHeight() / 2.0,
+                                        spriteManager
+                                );
+                            } else if (powerUpType < 0.75) {
+                                // PowerUp làm chậm bóng
+                                newPowerUp = new SlowBallPowerUp(
+                                        brick.getX() + brick.getWidth() / 2.0,
+                                        brick.getY() + brick.getHeight() / 2.0,
+                                        spriteManager
+                                );
+                            } else {
+                                // PowerUp tăng thêm 2 bóng
+                                newPowerUp = new SplitBallPowerUp(
+                                        brick.getX() + brick.getWidth() / 2.0,
+                                        brick.getY() + brick.getHeight() / 2.0,
+                                        spriteManager
+                                );
+                            }
+
+                            // Thêm PowerUp mới vào danh sách powerUps
+                            powerUps.add(newPowerUp);
+                        }
+                    }
+
+                    break; // Tránh va chạm nhiều gạch cùng lúc
+                }
+            }
+
+            // --- Va chạm với paddle ---
+            if (b.getX() + b.getWidth() >= paddle.getX()
+                    && b.getX() <= paddle.getX() + paddle.getWidth()
+                    && b.getY() + b.getHeight() >= paddle.getY()
+                    && b.getY() <= paddle.getY() + paddle.getHeight()
+                    && b.getDy() > 0) {
+
+                b.setY(paddle.getY() - b.getHeight());
+
+                // Tính toán góc bật tùy theo vị trí bóng chạm paddle
+                double ballCenterX = b.getX() + (double) b.getWidth() / 2;
+                double paddleCenterX = paddle.getX() + (double) paddle.getWidth() / 2;
+                double relativeHitX = (double)(ballCenterX - paddleCenterX) / (paddle.getWidth() / 2.0);
+                relativeHitX = Math.max(-1.0, Math.min(1.0, relativeHitX));
+
+                double bounceAngle = relativeHitX * Math.toRadians(60);
+                double currentSpeed = Math.sqrt(b.getDx() * b.getDx() + b.getDy() * b.getDy());
+
+                b.setDx(currentSpeed * Math.sin(bounceAngle));
+                b.setDy(-currentSpeed * Math.cos(bounceAngle));
+                soundManager.playSound("bounce");
             }
         }
-
-        // --- Va chạm với paddle ---
-        if (ball.getX() + ball.getWidth() >= paddle.getX()
-                && ball.getX() <= paddle.getX() + paddle.getWidth()
-                && ball.getY() + ball.getHeight() >= paddle.getY()
-                && ball.getY() <= paddle.getY() + paddle.getHeight()
-                && ball.getDy() > 0) {
-
-            ball.setY(paddle.getY() - ball.getHeight());
-
-            // Tính toán góc bật tùy theo vị trí bóng chạm paddle
-            double ballCenterX = ball.getX() + (double) ball.getWidth() / 2;
-            double paddleCenterX = paddle.getX() + (double) paddle.getWidth() / 2;
-            double relativeHitX = (double)(ballCenterX - paddleCenterX) / (paddle.getWidth() / 2.0);
-            relativeHitX = Math.max(-1.0, Math.min(1.0, relativeHitX));
-
-            double bounceAngle = relativeHitX * Math.toRadians(60);
-            double currentSpeed = Math.sqrt(ball.getDx() * ball.getDx() + ball.getDy() * ball.getDy());
-
-            ball.setDx(currentSpeed * Math.sin(bounceAngle));
-            ball.setDy(-currentSpeed * Math.cos(bounceAngle));
-            soundManager.playSound("bounce");
-        }
     }
+
 
     public void resetAllPowerUps() {
         // Reset paddle kích thước gốc
@@ -448,7 +494,7 @@ public class GameManager implements KeyListener {
                     // --- Game Loop ---
                     new Thread(
                             () -> {
-                                final double TARGET_FPS = 30.0;
+                                final double TARGET_FPS = 60.0;
                                 final long OPTIMAL_TIME = (long) (1000000000 / TARGET_FPS);
                                 long lastLoopTime = System.nanoTime();
 
@@ -474,4 +520,5 @@ public class GameManager implements KeyListener {
                             .start();
                 });
     }
+
 }

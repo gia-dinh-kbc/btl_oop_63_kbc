@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.Random;
 
 public class Ball extends MovableObject {
-    private double speed = 5;
+    private double speed = 3;
     private Ellipse2D.Double hitbox;
     private SpriteManager spriteManager;
     private BufferedImage ballSprite;
@@ -56,7 +56,7 @@ public class Ball extends MovableObject {
     }
 
     public void increaseSpeed() {
-        this.speed = 8;
+        this.speed = 4;
 
         double currentSpeed = Math.sqrt(dx * dx + dy * dy);  // Tính tốc độ hiện tại của bóng
         double speedRatio = currentSpeed / speed;  // Tính tỷ lệ giữa tốc độ hiện tại và tốc độ mới
@@ -66,7 +66,7 @@ public class Ball extends MovableObject {
     }
 
     public void decreaseSpeed() {
-        this.speed = 3;
+        this.speed = 2;
 
         double currentSpeed = Math.sqrt(dx * dx + dy * dy);  // Tính tốc độ hiện tại của bóng
         double speedRatio = currentSpeed / speed;  // Tính tỷ lệ giữa tốc độ hiện tại và tốc độ mới
@@ -76,12 +76,16 @@ public class Ball extends MovableObject {
     }
 
     public void resetSpeed() {
-        this.speed = 5;
+        this.speed = 3;
         double currentSpeed = Math.sqrt(dx * dx + dy * dy);
         double speedRatio = currentSpeed / speed;
 
         dx = dx / speedRatio;
         dy = dy / speedRatio;
+    }
+
+    public SpriteManager getSpriteManager() {
+        return spriteManager;
     }
 
     @Override

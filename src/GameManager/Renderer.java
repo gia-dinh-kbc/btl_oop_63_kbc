@@ -1,5 +1,7 @@
 package GameManager;
 
+import MovableObject.Ball;
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -76,7 +78,9 @@ public class Renderer extends JPanel {
         g.drawString("Score: " + gameManager.getScore(), 10, 25);
         g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 80, 25);
 
-        gameManager.getBall().render(g);
+        for (Ball b : gameManager.getBalls()) {
+            b.render(g);
+        }
         gameManager.getPaddle().render(g);
 
         for (var brick : gameManager.getBricks()) {
