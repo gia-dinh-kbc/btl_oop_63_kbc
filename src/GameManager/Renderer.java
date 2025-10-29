@@ -1,20 +1,14 @@
 package GameManager;
 
 import MovableObject.Ball;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import java.awt.*;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 
 public class Renderer extends JPanel {
     private GameManager gameManager;
-    private Font titleFont = new Font("Arial", Font.BOLD, 40);
-    private Font subtitleFont = new Font("Arial", Font.PLAIN, 20);
+    private Font titleFont = new Font("Press Start 2P", Font.BOLD, 40);
+    private Font subtitleFont = new Font("Press Start 2P", Font.PLAIN, 20);
     private Font gameFont = new Font("Arial", Font.BOLD, 20);
 
     // Cache the images to prevent flickering
@@ -23,30 +17,57 @@ public class Renderer extends JPanel {
     private Image gameOverBackground;
     private Image youWinBackground;
 
+    // Biến hiệu ứng fade và neon
+    private float subtitleAlpha = 1f;
+    private boolean fadingOut = true;
+    private float neonPhase = 0f;
+
+    // constructor
     public Renderer(GameManager gameManager) {
         this.gameManager = gameManager;
         setBackground(Color.BLACK);
         setFocusable(true);
         setDoubleBuffered(true);
-
         // Load all images once during initialization
         loadImages();
+
+        // Timer để cập nhật hiệu ứng fade và neon
+        new javax.swing.Timer(40, e -> {
+            // Fade in/out chữ
+            if (fadingOut) {
+                subtitleAlpha -= 0.05f;
+                if (subtitleAlpha <= 0f) {
+                    subtitleAlpha = 0f;
+                    fadingOut = false;
+                }
+            } else {
+                subtitleAlpha += 0.05f;
+                if (subtitleAlpha >= 1f) {
+                    subtitleAlpha = 1f;
+                    fadingOut = true;
+                }
+            }
+
+            // Cập nhật pha neon
+            neonPhase += 0.1f;
+            repaint();
+        }).start();
     }
 
     private void loadImages() {
         try {
             startScreenBackground = new ImageIcon(
-                    getClass().getResource("/Resource/Backgrounds/startScreenBackground.gif")
+                    getClass().getResource("/Resource/Backgrounds/Gamestart.gif")
             ).getImage();
 
-            // Use the JPEG for game background (already static)
             gameBackground = new ImageIcon(
-                    getClass().getResource("/Resource/Backgrounds/gameBackground.jpeg")
+                    getClass().getResource("/Resource/Backgrounds/Background.jpg")
             ).getImage();
 
             gameOverBackground = new ImageIcon(
-                    getClass().getResource("/Resource/Backgrounds/gameOverBackground.gif")
+                    getClass().getResource("/Resource/Backgrounds/Gameover.gif")
             ).getImage();
+
             youWinBackground = new ImageIcon(
                     getClass().getResource("/Resource/Backgrounds/youWinBackground.gif")
             ).getImage();
@@ -59,14 +80,84 @@ public class Renderer extends JPanel {
     }
 
     private void drawStartScreen(Graphics g) {
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // Vẽ background
         if (startScreenBackground != null) {
-            g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+            g2d.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
-        g.setColor(Color.WHITE);
-        g.setFont(titleFont);
-        g.drawString("Arkanoid Game", GameManager.getWindowWidth() / 2 - 160, GameManager.getWindowHeight() / 2);
-        g.setFont(subtitleFont);
-        g.drawString("Press SPACE to start", GameManager.getWindowWidth() / 2 - 100, GameManager.getWindowHeight() / 2 + 100);
+
+        // ======= VẼ TIÊU ĐỀ =======
+        g2d.setFont(titleFont);
+        String title = "ARKANOID GAME";
+        FontMetrics fm = g2d.getFontMetrics(titleFont);
+        int titleWidth = fm.stringWidth(title);
+        int titleHeight = fm.getAscent();
+        int x = (GameManager.getWindowWidth() - titleWidth) / 2;
+        int y = (GameManager.getWindowHeight() / 2) - titleHeight;
+
+        // Hiệu ứng đổ bóng
+        g2d.setColor(new Color(32, 15, 217, 255)); // xanh blue
+        for (int i = 1; i <= 5; i++) {
+            g2d.drawString(title, x - i, y - i);
+            g2d.drawString(title, x + i, y + i);
+        }
+
+        // Hiệu ứng gradient chuyển màu
+        java.awt.GradientPaint gradient = new java.awt.GradientPaint(
+                0, y - titleHeight,
+                new Color(60, 181, 255),
+                0, y,
+                new Color(198, 247, 255)
+        );
+        g2d.setPaint(gradient);
+        g2d.drawString(title, x, y);
+
+        // ======= VẼ DÒNG PHỤ "Press SPACE to start" =======
+        g2d.setFont(subtitleFont);
+        String subtitle = "Press SPACE to start";
+        FontMetrics fm2 = g2d.getFontMetrics(subtitleFont);
+        int subWidth = fm2.stringWidth(subtitle);
+        int subHeight = fm2.getAscent();
+        int subX = (GameManager.getWindowWidth() - subWidth) / 2;
+        int subY = y + 100;
+
+        // Hiệu ứng fade sáng tối cho chữ
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subtitleAlpha));
+        g2d.setColor(new Color(250, 252, 255));
+        g2d.drawString(subtitle, subX, subY);
+
+        // ======= KHUNG NEON NHẤP NHÁY =======
+        int paddingX = 30;
+        int paddingY = 15;
+        int boxX = subX - paddingX / 2;
+        int boxY = subY - subHeight - paddingY / 3;
+        int boxWidth = subWidth + paddingX;
+        int boxHeight = subHeight + paddingY;
+
+// Màu neon cố định (không đổi màu)
+        Color neonColor = new Color(60, 181, 255);
+
+
+// === TÔ NỀN KHUNG PHÁT SÁNG MỜ ===
+        Color innerGlow = new Color(neonColor.getRed(), neonColor.getGreen(), neonColor.getBlue(), 60);
+        g2d.setColor(innerGlow);
+        g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 20, 20);
+
+// Hiệu ứng glow bằng cách vẽ nhiều lớp viền mờ
+        for (int i = 4; i >= 1; i--) {
+            float alpha = 0.1f * i;
+            g2d.setColor(new Color(neonColor.getRed(), neonColor.getGreen(), neonColor.getBlue(), (int) (255 * alpha)));
+            g2d.setStroke(new BasicStroke(i * 2f));
+            g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 20, 20);
+        }
+
+// Viền chính neon
+        g2d.setColor(neonColor);
+        g2d.setStroke(new BasicStroke(2f));
+        g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 20, 20);
+
     }
 
     private void drawGame(Graphics g) {
@@ -74,13 +165,15 @@ public class Renderer extends JPanel {
             g.drawImage(gameBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
         g.setColor(Color.WHITE);
-        g.setFont(gameFont);
-        g.drawString("Score: " + gameManager.getScore(), 10, 25);
-        g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 120, 25);
+        Font scoreFont = new Font("Press Start 2P", Font.BOLD, 12);
+        g.setFont(scoreFont);
+        g.drawString("SCORE: " + gameManager.getScore(), 10, 25);
+        g.drawString("LIVES: " + gameManager.getLives(), GameManager.getWindowWidth() - 120, 25);
 
         for (Ball b : gameManager.getBalls()) {
             b.render(g);
         }
+
         gameManager.getPaddle().render(g);
 
         for (var brick : gameManager.getBricks()) {
@@ -96,8 +189,37 @@ public class Renderer extends JPanel {
         if (gameOverBackground != null) {
             g.drawImage(gameOverBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
-        g.setColor(Color.WHITE);
-        g.setFont(subtitleFont);
+        // ======= VẼ TIÊU ĐỀ =======
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(titleFont);
+        String title = "GAME OVER";
+        FontMetrics fm = g2d.getFontMetrics(titleFont);
+        int titleWidth = fm.stringWidth(title);
+        int titleHeight = fm.getAscent();
+        int x = (GameManager.getWindowWidth() - titleWidth) / 2;
+        int y = (GameManager.getWindowHeight() / 2) - titleHeight;
+
+        // Hiệu ứng đổ bóng
+        g2d.setColor(new Color(32, 15, 217, 255)); // xanh blue
+        for (int i = 1; i <= 5; i++) {
+            g2d.drawString(title, x - i, y - i);
+            g2d.drawString(title, x + i, y + i);
+        }
+
+        // Hiệu ứng gradient chuyển màu
+        java.awt.GradientPaint gradient = new java.awt.GradientPaint(
+                0, y - titleHeight,
+                new Color(60, 181, 255),
+                0, y,
+                new Color(198, 247, 255)
+        );
+        g2d.setPaint(gradient);
+        g2d.drawString(title, x, y);
+
+
+        Font scoreFont = new Font("Press Start 2P", Font.BOLD, 20);
+        g.setColor(new Color(156, 241, 255));
+        g.setFont(scoreFont);
         g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 150);
         g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 200);
     }
@@ -118,7 +240,6 @@ public class Renderer extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2d = (Graphics2D) g;
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);

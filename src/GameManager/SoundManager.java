@@ -36,6 +36,7 @@ public class SoundManager {
         loadSound("win", "/Resource/Music/win.wav");
         loadSound("background", "/Resource/Music/background.wav");
         loadSound("start", "/Resource/Music/start.wav");
+        loadSound("press", "/Resource/SoundEffect/press.wav");
     }
 
     /**

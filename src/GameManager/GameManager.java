@@ -14,11 +14,14 @@ import PowerUp.SplitBallPowerUp;
 import PowerUp.ExtraLifePowerUp;
 
 import javax.swing.JFrame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.Timer;
 
 /**
  * Lớp GameManager chịu trách nhiệm quản lý toàn bộ logic trò chơi:
@@ -44,7 +47,8 @@ public class GameManager implements KeyListener {
     private List<Brick> bricks = new ArrayList<>();              // Danh sách các viên gạch
     private List<PowerUp> powerUps = new ArrayList<>();          // Danh sách vật phẩm rơi ra
     private int score = 0;                                       // Điểm người chơi
-    private int lives = 3;                                       // Số mạng
+    private int lives = 3;
+    private boolean isStartingGame = false;// Số mạng
 
     public void setLives(int lives) {
         this.lives = lives;
@@ -85,6 +89,7 @@ public class GameManager implements KeyListener {
         bricks.clear();
         loadLevel(currentLevel); // Tải màn chơi
         gameState = 1; // Đưa game về trạng thái đang chơi
+        boolean isStartingGame = false; // <-- THÊM DÒNG NÀY để reset cờ
     }
 
     /**
@@ -487,13 +492,35 @@ public class GameManager implements KeyListener {
         } else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D) {
             paddle.moveRight();
         } else if (key == KeyEvent.VK_SPACE) {
-            if (gameState == 0 || gameState == 2 || gameState == 3) {
-                startGame();  // Bắt đầu lại game
+            // Chỉ chạy khi ở màn hình chờ (gameState 0) VÀ game chưa bắt đầu
+            if (gameState == 0 && !isStartingGame) {
+                isStartingGame = true; // Đặt cờ: Báo là game "đang bắt đầu"
+                soundManager.playSound("press");
+
+                // Tạo một Timer để trì hoãn
+                int delay = 1700; // 2000 milliseconds = 2 giây
+
+                // Tạo một Timer, sẽ chạy 1 lần sau 2 giây
+                Timer timer = new Timer(delay, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        startGame(); // Gọi hàm startGame() sau 2 giây
+                    }
+                });
+
+                timer.setRepeats(false); // Đảm bảo nó chỉ chạy một lần
+                timer.start(); // Bắt đầu đếm ngược
+
+            } else if (gameState == 2 || gameState == 3) {
+                // Khởi động lại game (không cần chờ)
+                startGame();
             } else if (gameState == 1 && ballAttached) {
                 launchBall();  // Phóng bóng
             }
         }
     }
+
+
 
     @Override
     public void keyReleased(KeyEvent e) {
