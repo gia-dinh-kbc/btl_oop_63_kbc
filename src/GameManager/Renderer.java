@@ -5,6 +5,9 @@ import java.awt.*;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 
+/**
+ * Renderer class is responsible for rendering the game graphics.
+ */
 public class Renderer extends JPanel {
     private GameManager gameManager;
     private Font titleFont = new Font("Press Start 2P", Font.BOLD, 40);

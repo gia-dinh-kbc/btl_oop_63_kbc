@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.Timer;
 
+
 /**
  * Lớp GameManager chịu trách nhiệm quản lý toàn bộ logic trò chơi:
  * - Khởi tạo paddle, bóng, gạch, power-up
