@@ -555,8 +555,6 @@ public class GameManager implements KeyListener {
                     frame.setVisible(true);
                     renderer.requestFocusInWindow();
                     renderer.requestFocus();
-
-                    //
                     // Khi tắt chương trình → giải phóng tài nguyên âm thanh
                     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                         gameManager.getSoundManager().cleanup();
