@@ -199,6 +199,7 @@ public class Renderer extends JPanel {
         int x = (GameManager.getWindowWidth() - titleWidth) / 2;
         int y = (GameManager.getWindowHeight() / 2) - titleHeight;
 
+
         // Hiệu ứng đổ bóng
         g2d.setColor(new Color(32, 15, 217, 255)); // xanh blue
         for (int i = 1; i <= 5; i++) {
