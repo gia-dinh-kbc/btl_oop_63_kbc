@@ -91,7 +91,7 @@ public class Renderer extends JPanel {
             g2d.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
 
-        // ======= VẼ TIÊU ĐỀ =======
+        // ======= VẼ TIÊU ĐỀ (Cách 1: Glitch + Bóng đen) =======
         g2d.setFont(titleFont);
         String title = "ARKANOID GAME";
         FontMetrics fm = g2d.getFontMetrics(titleFont);
@@ -100,22 +100,28 @@ public class Renderer extends JPanel {
         int x = (GameManager.getWindowWidth() - titleWidth) / 2;
         int y = (GameManager.getWindowHeight() / 2) - titleHeight;
 
-        // Hiệu ứng đổ bóng
-        g2d.setColor(new Color(32, 15, 217, 255)); // xanh blue
-        for (int i = 1; i <= 5; i++) {
-            g2d.drawString(title, x - i, y - i);
-            g2d.drawString(title, x + i, y + i);
-        }
+        int shadowOffset = 4; // Độ dày và độ lệch của bóng đen (có thể thử 3, 4, 5)
+        int glitchOffset = 6; // Độ lệch của các lớp màu (TĂNG LÊN để hiệu ứng glitch rõ hơn)
 
-        // Hiệu ứng gradient chuyển màu
-        java.awt.GradientPaint gradient = new java.awt.GradientPaint(
-                0, y - titleHeight,
-                new Color(60, 181, 255),
-                0, y,
-                new Color(198, 247, 255)
-        );
-        g2d.setPaint(gradient);
+        // --- 1. VẼ BÓNG ĐEN (VẼ TRƯỚC HẾT để tạo nền) ---
+        // Dùng màu đen hơi mờ để tạo độ sâu, nhưng không che khuất quá nhiều
+        g2d.setColor(new Color(0, 0, 0, 180)); // Alpha 180/255 (khoảng 70% mờ)
+        g2d.drawString(title, x + shadowOffset, y + shadowOffset);
+
+        // --- 2. VẼ LỚP CYAN (LỆCH TRÁI) ---
+        // Giữ độ mờ của lớp màu để nó không quá choáng ngợp
+        g2d.setColor(new Color(0, 255, 255, 120)); // Màu Cyan hơi mờ
+        g2d.drawString(title, x - glitchOffset, y);
+
+        // --- 3. VẼ LỚP MAGENTA (LỆCH PHẢI) ---
+        g2d.setColor(new Color(255, 0, 255, 120)); // Màu Magenta hơi mờ
+        g2d.drawString(title, x + glitchOffset, y);
+
+        // --- 4. VẼ LỚP TRẮNG CHÍNH (Ở GIỮA) ---
+        // Lớp này sẽ rõ nhất
+        g2d.setColor(Color.WHITE);
         g2d.drawString(title, x, y);
+
 
         // ======= VẼ DÒNG PHỤ "Press SPACE to start" =======
         g2d.setFont(subtitleFont);
@@ -124,42 +130,37 @@ public class Renderer extends JPanel {
         int subWidth = fm2.stringWidth(subtitle);
         int subHeight = fm2.getAscent();
         int subX = (GameManager.getWindowWidth() - subWidth) / 2;
-        int subY = y + 100;
+        int subY = y + 220;
+
+        int outline = 2;
+
+        // --- 1. SET HIỆU ỨNG NHẤP NHÁY (FADE) ---
+        // Áp dụng alpha nhấp nháy cho CẢ VIỀN VÀ CHỮ để chúng đồng bộ
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subtitleAlpha));
+
+        // --- 2. VẼ VIỀN ĐEN (8 HƯỚNG) ---
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(subtitle, subX - outline, subY - outline);
+        g2d.drawString(subtitle, subX + outline, subY - outline);
+        g2d.drawString(subtitle, subX - outline, subY + outline);
+        g2d.drawString(subtitle, subX + outline, subY + outline);
+        g2d.drawString(subtitle, subX - outline, subY);
+        g2d.drawString(subtitle, subX + outline, subY);
+        g2d.drawString(subtitle, subX, subY - outline);
+        g2d.drawString(subtitle, subX, subY + outline);
+
+        // --- 3. VẼ CHỮ TRẮNG ĐÈ LÊN ---
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(subtitle, subX, subY);
+
+        // --- 4. RESET LẠI COMPOSITE (RẤT QUAN TRỌNG) ---
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 
         // Hiệu ứng fade sáng tối cho chữ
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, subtitleAlpha));
-        g2d.setColor(new Color(250, 252, 255));
+        g2d.setColor(new Color(255, 255, 255));
         g2d.drawString(subtitle, subX, subY);
 
-        // ======= KHUNG NEON NHẤP NHÁY =======
-        int paddingX = 30;
-        int paddingY = 15;
-        int boxX = subX - paddingX / 2;
-        int boxY = subY - subHeight - paddingY / 3;
-        int boxWidth = subWidth + paddingX;
-        int boxHeight = subHeight + paddingY;
-
-// Màu neon cố định (không đổi màu)
-        Color neonColor = new Color(60, 181, 255);
-
-
-// === TÔ NỀN KHUNG PHÁT SÁNG MỜ ===
-        Color innerGlow = new Color(neonColor.getRed(), neonColor.getGreen(), neonColor.getBlue(), 60);
-        g2d.setColor(innerGlow);
-        g2d.fillRoundRect(boxX, boxY, boxWidth, boxHeight, 20, 20);
-
-// Hiệu ứng glow bằng cách vẽ nhiều lớp viền mờ
-        for (int i = 4; i >= 1; i--) {
-            float alpha = 0.1f * i;
-            g2d.setColor(new Color(neonColor.getRed(), neonColor.getGreen(), neonColor.getBlue(), (int) (255 * alpha)));
-            g2d.setStroke(new BasicStroke(i * 2f));
-            g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 20, 20);
-        }
-
-// Viền chính neon
-        g2d.setColor(neonColor);
-        g2d.setStroke(new BasicStroke(2f));
-        g2d.drawRoundRect(boxX, boxY, boxWidth, boxHeight, 20, 20);
 
     }
 
