@@ -220,12 +220,48 @@ public class Renderer extends JPanel {
         g2d.setPaint(gradient);
         g2d.drawString(title, x, y);
 
-
+// ======= VẼ ĐIỂM SỐ CUỐI CÙNG VỚI HIỆU ỨNG GLOW =======
+        Graphics2D g2d2 = (Graphics2D) g;
         Font scoreFont = new Font("Press Start 2P", Font.BOLD, 20);
-        g.setColor(new Color(156, 241, 255));
         g.setFont(scoreFont);
-        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 150);
-        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 200);
+
+        Color mainColor = Color.WHITE;
+        Color glowColor = new Color(113, 6, 150, 100);
+        String scoreText = "Final Score: " + gameManager.getScore();
+        String restartText = "Press SPACE to restart";
+
+        int scoreX = GameManager.getWindowWidth() / 2 - 160;
+        int scoreY = GameManager.getWindowHeight() / 2 + 70;
+        int restartX = GameManager.getWindowWidth() / 2 - 210;
+        int restartY = GameManager.getWindowHeight() / 2 + 100;
+
+        int glowOffset = 5; // Độ dày/lan toả của viền glow
+
+        // --- 4. Vẽ lớp VIỀN (GLOW) trước ---
+        // Vẽ chữ 4 lần ở 4 góc (trên, dưới, trái, phải) bằng màu mờ
+        g2d.setColor(glowColor);
+        g2d.drawString(scoreText, scoreX - glowOffset, scoreY);
+        g2d.drawString(scoreText, scoreX + glowOffset, scoreY);
+        g2d.drawString(scoreText, scoreX, scoreY - glowOffset);
+        g2d.drawString(scoreText, scoreX, scoreY + glowOffset);
+
+        g2d.setColor(mainColor);
+        g2d.drawString(scoreText, scoreX, scoreY);
+
+        boolean isRestartVisible = (System.currentTimeMillis() % 1000) < 500;
+
+        if (isRestartVisible) {
+            // Vẽ viền (glow)
+            g2d.setColor(glowColor);
+            g2d.drawString(restartText, restartX - glowOffset, restartY);
+            g2d.drawString(restartText, restartX + glowOffset, restartY);
+            g2d.drawString(restartText, restartX, restartY - glowOffset);
+            g2d.drawString(restartText, restartX, restartY + glowOffset);
+
+            // Vẽ chữ chính
+            g2d.setColor(mainColor);
+            g2d.drawString(restartText, restartX, restartY);
+        }
     }
 
     private void drawYouWin(Graphics g) {
