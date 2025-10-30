@@ -10,7 +10,6 @@ import java.awt.image.BufferedImage;
 
 public class Brick extends GameObject {
     protected int hitPoints;
-    protected int type;
     protected Rectangle2D.Double hitbox;
     protected SpriteManager spriteManager;
     protected BufferedImage brickSprite;
@@ -26,7 +25,7 @@ public class Brick extends GameObject {
     }
 
     public boolean isDestroyed() {
-        if (hitPoints <= 0) {
+        if (hitPoints == 0) {
             return true;
         }
         return false;
@@ -34,6 +33,11 @@ public class Brick extends GameObject {
 
     public Shape getHitbox() {
         return hitbox;
+    }
+
+
+    public int getHitPoints() {
+        return hitPoints;
     }
 
     @Override
