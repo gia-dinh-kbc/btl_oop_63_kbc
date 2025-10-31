@@ -2,6 +2,14 @@ package GameManager;
 
 import MovableObject.Ball;
 import java.awt.*;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
 
@@ -19,6 +27,8 @@ public class Renderer extends JPanel {
     private Image gameBackground;
     private Image gameOverBackground;
     private Image youWinBackground;
+    private Image leaderboardBackground;
+    private Image menuBackground;
 
     // Biến hiệu ứng fade và neon
     private float subtitleAlpha = 1f;
@@ -73,6 +83,12 @@ public class Renderer extends JPanel {
 
             youWinBackground = new ImageIcon(
                     getClass().getResource("/Resource/Backgrounds/youWinBackground.gif")
+            ).getImage();
+            leaderboardBackground = new ImageIcon(
+                    getClass().getResource("/Resource/Backgrounds/leaderboard.gif")
+            ).getImage();
+            menuBackground = new ImageIcon(
+                    getClass().getResource("/Resource/Backgrounds/menu.gif")
             ).getImage();
 
             System.out.println("Background images loaded successfully!");
@@ -263,6 +279,24 @@ public class Renderer extends JPanel {
             g2d.setColor(mainColor);
             g2d.drawString(restartText, restartX, restartY);
         }
+
+        // Check if this is a high score
+        boolean isHighScore = gameManager.getScoreManager().isHighScore(gameManager.getScore());
+
+        if (isHighScore && gameManager.getScore() > 0) {
+            g.setColor(Color.YELLOW);
+            g.setFont(new Font("Arial", Font.BOLD, 32));
+            g.drawString("NEW HIGH SCORE!", GameManager.getWindowWidth() / 2 - 140, GameManager.getWindowHeight() / 2 + 130);
+        }
+
+        g.setColor(Color.WHITE);
+        g.setFont(subtitleFont);
+        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 180);
+
+        g.setColor(Color.WHITE);
+        g.setFont(subtitleFont);
+        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 260);
+        g.drawString("Press L for Full Leaderboard", GameManager.getWindowWidth() / 2 - 130, GameManager.getWindowHeight() / 2 + 300);
     }
 
     private void drawYouWin(Graphics g) {
@@ -274,8 +308,38 @@ public class Renderer extends JPanel {
         g.drawString("YOU WIN!", GameManager.getWindowWidth() / 2 - 100, GameManager.getWindowHeight() / 2);
         g.setColor(Color.BLACK);
         g.setFont(subtitleFont);
-        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 50);
-        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 100);
+        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2);
+
+        g.setColor(Color.BLACK);
+        g.setFont(subtitleFont);
+        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 260);
+        g.drawString("Press L for Full Leaderboard", GameManager.getWindowWidth() / 2 - 130, GameManager.getWindowHeight() / 2 + 300);
+    }
+
+    private void drawLeaderboard(Graphics g) {
+        if (leaderboardBackground != null) {
+            g.drawImage(leaderboardBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
+        }
+        g.setColor(Color.BLACK);
+        g.setFont(new Font("Arial", Font.BOLD, 32));
+        g.drawString("LEADERBOARD", GameManager.getWindowWidth() / 2 - 120, 150);
+
+        g.setFont(new Font("Arial", Font.BOLD, 24));
+        g.drawString("HIGH SCORES", GameManager.getWindowWidth() / 2 - 80, 250);
+
+        g.setFont(new Font("Arial", Font.PLAIN, 20));
+        List<Integer> highScores = gameManager.getScoreManager().getHighScores();
+
+        if (highScores.isEmpty()) {
+            g.drawString("No scores yet!", GameManager.getWindowWidth() / 2 - 70, 320);
+        } else {
+            for (int i = 0; i < highScores.size() && i < 5; i++) {
+                String scoreText = (i + 1) + ". " + highScores.get(i) + " points";
+                g.drawString(scoreText, GameManager.getWindowWidth() / 2 - 70, 320 + (i * 35));
+            }
+        }
+
+        g.setFont(subtitleFont);
     }
 
     @Override

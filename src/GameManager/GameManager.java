@@ -26,14 +26,16 @@ import javax.swing.Timer;
 
 /**
  * Lớp GameManager chịu trách nhiệm quản lý toàn bộ logic trò chơi:
- * - Khởi tạo paddle, bóng, gạch, power-up
+ * - Khởi tạo paddle, bóng, power-up
  * - Xử lý va chạm
  * - Quản lý điểm, mạng sống, trạng thái game
  * - Lắng nghe phím điều khiển
  */
 public class GameManager implements KeyListener {
-    private SpriteManager spriteManager = new SpriteManager();  // Quản lý hình ảnh
-    private SoundManager soundManager = new SoundManager();      // Quản lý âm thanh
+    private SpriteManager spriteManager = new SpriteManager();
+    private SoundManager soundManager = new SoundManager();
+    private ScoreManager scoreManager = new ScoreManager();
+    private LevelManager levelManager = new LevelManager(spriteManager); // NEW!
 
     // Khởi tạo các đối tượng chính trong game
     private Paddle paddle = new Paddle(0, 0, 128, 24, spriteManager);
@@ -52,7 +54,6 @@ public class GameManager implements KeyListener {
     private boolean isStartingGame = false;// Số mạng
     private boolean isBackgroundPlaying = false; // cờ để kiểm soát nhạc nền
 
-
     public void setLives(int lives) {
         this.lives = lives;
     }
@@ -68,7 +69,7 @@ public class GameManager implements KeyListener {
     // Khi khởi tạo GameManager
     public GameManager() {
         soundManager.stopAllSounds();
-        soundManager.playLoopingSound("start"); // Phát nhạc nền khởi đầu
+        soundManager.playLoopingSound("start");
     }
 
     /**
@@ -79,7 +80,9 @@ public class GameManager implements KeyListener {
         lives = 3;
         score = 0;
         ballAttached = true;
-        currentLevel = 1; // Quay lại level đầu
+
+        // Reset level về màn đầu
+        levelManager.reset();
 
         // Đặt vị trí paddle và bóng
         paddle.setX(WINDOW_WIDTH / 2 - paddle.getWidth() / 2);
@@ -89,45 +92,8 @@ public class GameManager implements KeyListener {
         ball.setDx(0);
         ball.setDy(0);
         balls.add(ball);
-        bricks.clear();
-        loadLevel(currentLevel); // Tải màn chơi
-        gameState = 1; // Đưa game về trạng thái đang chơi
-        boolean isStartingGame = false; // <-- THÊM DÒNG NÀY để reset cờ
-    }
 
-    /**
-     * Tạo bản đồ gạch cho từng level.
-     */
-    private void loadLevel(int level) {
-        bricks.clear();
-        int width = 64;
-        int height = 32;
-
-        if (level == 1) {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 2; j <= 3; j++) {
-                    if (j == 1) {
-                        Brick brick = new StrongBrick(i * width, j * height + 100, width - 1, height - 1, spriteManager);
-                        bricks.add(brick);
-                    } else {
-                        Brick brick = new NormalBrick(i * width, j * height + 100, width - 1, height - 1, spriteManager);
-                        bricks.add(brick);
-                    }
-                }
-            }
-        } else if (level == 2) {
-            for (int i = 0; i < 10; i++) {
-                for (int j = 0; j < 3; j++) {
-                    if ((i + j) % 2 == 0) {
-                        Brick brick = new StrongBrick(i * width, j * height + 150, width - 1, height - 1, spriteManager);
-                        bricks.add(brick);
-                    } else {
-                        Brick brick = new NormalBrick(i * width, j * height + 150, width - 1, height - 1, spriteManager);
-                        bricks.add(brick);
-                    }
-                }
-            }
-        }
+        gameState = 1;
     }
 
     /**
@@ -210,16 +176,15 @@ public class GameManager implements KeyListener {
             }
         }
 
-        // Nếu phá hết gạch → chuyển màn or win
-        if (bricks.isEmpty()) {
+        // Kiểm tra xem đã hoàn thành level chưa
+        if (levelManager.isLevelComplete()) {
             nextLevel();
         }
 
-        // Phát nhạc nền nếu đang chơi và chưa phát
-        if (gameState == 1 && !isBackgroundPlaying) {
+        // Phát nhạc nền nếu chưa chạy
+        if (gameState == 1 && !soundManager.isPlaying("background")) {
             soundManager.stopAllSounds();
             soundManager.playLoopingSound("background");
-            isBackgroundPlaying = true; // đánh dấu đã phát nhạc nền
         }
     }
 
@@ -228,19 +193,19 @@ public class GameManager implements KeyListener {
      */
     private void nextLevel() {
         powerUps.clear();
-        isBackgroundPlaying = false;
-        if (currentLevel == 1 && score != 0) {
-            currentLevel = 2;
+
+        // Thử chuyển sang level tiếp theo
+        if (levelManager.nextLevel()) {
+            // Còn level tiếp theo
             soundManager.playSound("win");
-            ballAttached = true;
-            ball.setDx(0);
-            ball.setDy(0);
-            ball.reset(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+            resetBalls();
+
+            // Reset paddle position
             paddle.setX(WINDOW_WIDTH / 2 - paddle.getWidth() / 2);
             paddle.setY(700);
-            loadLevel(currentLevel);
-            resetBalls();
+            paddle.resetSize();
         } else {
+            // Đã hoàn thành tất cả level
             youWin();
         }
     }
@@ -269,17 +234,34 @@ public class GameManager implements KeyListener {
     /** Khi thua cuộc */
     public void gameOver() {
         gameState = 2;
+
+        // Check if it's a high score before adding
+        boolean isNewHighScore = scoreManager.isHighScore(score);
+        scoreManager.addScore(score);
+
+        if (isNewHighScore && score > 0) {
+            int rank = scoreManager.getScoreRank(score);
+            System.out.println("NEW HIGH SCORE! Rank #" + rank);
+        }
+
         soundManager.stopAllSounds();
         soundManager.playLoopingSound("gameOver");
-        isBackgroundPlaying = false;
     }
 
     /** Khi chiến thắng */
     public void youWin() {
         gameState = 3;
+
+        boolean isNewHighScore = scoreManager.isHighScore(score);
+        scoreManager.addScore(score);
+
+        if (isNewHighScore && score > 0) {
+            int rank = scoreManager.getScoreRank(score);
+            System.out.println("NEW HIGH SCORE! Rank #" + rank);
+        }
+
         soundManager.stopAllSounds();
         soundManager.playLoopingSound("win");
-        isBackgroundPlaying = false;
     }
 
     /**
@@ -310,7 +292,7 @@ public class GameManager implements KeyListener {
             }
 
             // --- Va chạm với gạch ---
-            Iterator<Brick> iterator = bricks.iterator();
+            Iterator<Brick> iterator = levelManager.getBricks().iterator();
             while (iterator.hasNext()) {
                 Brick brick = iterator.next();
 
@@ -375,8 +357,6 @@ public class GameManager implements KeyListener {
 
                         // Tạo ngẫu nhiên Power-Up với xác suất tùy chỉnh
                         double dropChance = Math.random();
-
-                        // Giữ xác suất tạo PowerUp là 80%
                         if (dropChance < 0.8) {
                             PowerUp newPowerUp;
 
@@ -465,18 +445,56 @@ public class GameManager implements KeyListener {
         powerUps.clear();
     }
 
-    // Các getter hỗ trợ cho renderer hoặc UI
-    public List<Brick> getBricks() { return bricks; }
-    public List<PowerUp> getPowerUps() { return powerUps; }
-    public Ball getBall() { return ball; }
-    public Paddle getPaddle() { return paddle; }
-    public int getScore() { return score; }
-    public int getLives() { return lives; }
-    public int getGameState() { return gameState; }
-    public SoundManager getSoundManager() { return soundManager; }
+    // Getters
+    public List<Brick> getBricks() {
+        return levelManager.getBricks();
+    }
 
-    public static int getWindowWidth() { return WINDOW_WIDTH; }
-    public static int getWindowHeight() { return WINDOW_HEIGHT; }
+    public List<PowerUp> getPowerUps() {
+        return powerUps;
+    }
+
+    public Ball getBall() {
+        return ball;
+    }
+
+    public Paddle getPaddle() {
+        return paddle;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getLives() {
+        return lives;
+    }
+
+    public int getGameState() {
+        return gameState;
+    }
+
+    public SoundManager getSoundManager() {
+        return soundManager;
+    }
+
+    public ScoreManager getScoreManager() {
+        return scoreManager;
+    }
+
+    public LevelManager getLevelManager() {
+        return levelManager;
+    }
+
+
+
+    public static int getWindowWidth() {
+        return WINDOW_WIDTH;
+    }
+
+    public static int getWindowHeight() {
+        return WINDOW_HEIGHT;
+    }
 
     /** Phóng bóng ra khỏi paddle */
     private void launchBall() {
@@ -522,7 +540,17 @@ public class GameManager implements KeyListener {
                 // Khởi động lại game (không cần chờ)
                 startGame();
             } else if (gameState == 1 && ballAttached) {
-                launchBall();  // Phóng bóng
+                launchBall();
+            } else if (gameState == 4 || gameState == 5) {
+                gameState = 0;
+            }
+        } else if (key == KeyEvent.VK_L) {
+            if (gameState == 0 || gameState == 2 || gameState == 3) {
+                gameState = 4;
+            }
+        } else if (key == KeyEvent.VK_M) {
+            if (gameState == 0 || gameState == 2 || gameState == 3) {
+                gameState = 5;
             }
         }
     }
