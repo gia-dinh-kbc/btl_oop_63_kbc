@@ -52,7 +52,9 @@ public class GameManager implements KeyListener {
     private int score = 0;                                       // Điểm người chơi
     private int lives = 3;
     private boolean isStartingGame = false;// Số mạng
-    private boolean isBackgroundPlaying = false; // cờ để kiểm soát nhạc nền
+
+    // Biến cờ này không còn cần thiết nếu logic âm thanh được xử lý đúng
+    // private boolean isBackgroundPlaying = false;
 
     public void setLives(int lives) {
         this.lives = lives;
@@ -94,6 +96,12 @@ public class GameManager implements KeyListener {
         balls.add(ball);
 
         gameState = 1;
+
+        // === THAY ĐỔI: Bật nhạc nền Ở ĐÂY ===
+        // Logic này được chuyển từ updateGame() về đây.
+        // Nó sẽ chạy 1 lần duy nhất khi game bắt đầu.
+        soundManager.stopAllSounds();
+        soundManager.playLoopingSound("background");
     }
 
     /**
@@ -181,11 +189,9 @@ public class GameManager implements KeyListener {
             nextLevel();
         }
 
-        // Phát nhạc nền nếu chưa chạy
-        if (gameState == 1 && !soundManager.isPlaying("background")) {
-            soundManager.stopAllSounds();
-            soundManager.playLoopingSound("background");
-        }
+        // === THAY ĐỔI: ĐÃ XÓA ===
+        // Khối 'if' kiểm tra nhạc nền đã được xóa khỏi đây
+        // vì nó không hiệu quả (polling).
     }
 
     /**
@@ -196,8 +202,6 @@ public class GameManager implements KeyListener {
 
         // Thử chuyển sang level tiếp theo
         if (levelManager.nextLevel()) {
-            // Còn level tiếp theo
-            soundManager.playSound("win");
             resetBalls();
 
             // Reset paddle position

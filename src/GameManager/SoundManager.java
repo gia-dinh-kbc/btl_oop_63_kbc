@@ -47,13 +47,15 @@ public class SoundManager {
         loadSound("loseHealth", "/Resource/SoundEffect/loseHealth.wav", 2);
         loadSound("lose", "/Resource/SoundEffect/loseHealth.wav", 2);
         loadSound("levelComplete", "/Resource/SoundEffect/levelComplete.wav", 1);
-        loadSound("powerUp", "/Resource/SoundEffect/powerUp.wav", 3);
+        loadSound("powerup", "/Resource/SoundEffect/powerup.wav", 3);
 
         // Music tracks - only need 1 instance
         loadSound("gameOver", "/Resource/Music/gameOver.wav", 1);
         loadSound("win", "/Resource/Music/win.wav", 1);
         loadSound("background", "/Resource/Music/background.wav", 1);
         loadSound("start", "/Resource/Music/start.wav", 1);
+        loadSound("press", "/Resource/SoundEffect/press.wav", 1);
+
     }
 
     /**

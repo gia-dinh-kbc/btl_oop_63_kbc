@@ -89,10 +89,10 @@ public class Renderer extends JPanel {
                     getClass().getResource("/Resource/Backgrounds/youWinBackground.gif")
             ).getImage();
             leaderboardBackground = new ImageIcon(
-                    getClass().getResource("/Resource/Backgrounds/leaderboard.gif")
+                    getClass().getResource("/Resource/Backgrounds/leaderboard.jpg")
             ).getImage();
             menuBackground = new ImageIcon(
-                    getClass().getResource("/Resource/Backgrounds/menu.gif")
+                    getClass().getResource("/Resource/Backgrounds/menu.jpg")
             ).getImage();
 
             System.out.println("Background images loaded successfully!");
@@ -110,8 +110,7 @@ public class Renderer extends JPanel {
         if (startScreenBackground != null) {
             g2d.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
-
-        // ======= VẼ TIÊU ĐỀ (Cách 1: Glitch + Bóng đen) =======
+        // VẼ TIÊU ĐỀ
         g2d.setFont(titleFont);
         String title = "ARKANOID GAME";
         FontMetrics fm = g2d.getFontMetrics(titleFont);
@@ -175,6 +174,58 @@ public class Renderer extends JPanel {
         g2d.setColor(new Color(255, 255, 255));
         g2d.drawString(subtitle, subX, subY);
 
+        // ======= VẼ DÒNG PHỤ 2: "Press L for Leaderboard" =======
+        // ======= VẼ DÒNG PHỤ 2: "Press L for Leaderboard" (KHÔNG NHẤP NHÁY) =======
+        String subtitle2 = "Press L for Leaderboard";
+        FontMetrics fmSub2 = g2d.getFontMetrics(subtitleFont);
+        int sub2Width = fmSub2.stringWidth(subtitle2);
+        int sub2X = (GameManager.getWindowWidth() - sub2Width) / 2;
+        int sub2Y = subY + 50;  // khoảng cách 50 px
+
+// luôn vẽ ở alpha = 1.0f để không nhấp nháy
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+
+// viền đen 8 hướng
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(subtitle2, sub2X - outline, sub2Y - outline);
+        g2d.drawString(subtitle2, sub2X + outline, sub2Y - outline);
+        g2d.drawString(subtitle2, sub2X - outline, sub2Y + outline);
+        g2d.drawString(subtitle2, sub2X + outline, sub2Y + outline);
+        g2d.drawString(subtitle2, sub2X - outline, sub2Y);
+        g2d.drawString(subtitle2, sub2X + outline, sub2Y);
+        g2d.drawString(subtitle2, sub2X, sub2Y - outline);
+        g2d.drawString(subtitle2, sub2X, sub2Y + outline);
+
+// chữ trắng
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(subtitle2, sub2X, sub2Y);
+
+
+// ======= VẼ DÒNG PHỤ 3: "Press M for Rule Menu" (KHÔNG NHẤP NHÁY) =======
+        String subtitle3 = "Press M for Rule Menu"; // đổi M nếu bạn muốn giữ như trước
+        FontMetrics fmSub3 = g2d.getFontMetrics(subtitleFont);
+        int sub3Width = fmSub3.stringWidth(subtitle3);
+        int sub3X = (GameManager.getWindowWidth() - sub3Width) / 2;
+        int sub3Y = sub2Y + 50;  // tiếp tục cách 50 px
+
+// luôn vẽ ở alpha = 1.0f để không nhấp nháy
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+
+// viền đen 8 hướng
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(subtitle3, sub3X - outline, sub3Y - outline);
+        g2d.drawString(subtitle3, sub3X + outline, sub3Y - outline);
+        g2d.drawString(subtitle3, sub3X - outline, sub3Y + outline);
+        g2d.drawString(subtitle3, sub3X + outline, sub3Y + outline);
+        g2d.drawString(subtitle3, sub3X - outline, sub3Y);
+        g2d.drawString(subtitle3, sub3X + outline, sub3Y);
+        g2d.drawString(subtitle3, sub3X, sub3Y - outline);
+        g2d.drawString(subtitle3, sub3X, sub3Y + outline);
+
+// chữ trắng
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(subtitle3, sub3X, sub3Y);
+
 
     }
 
@@ -185,9 +236,9 @@ public class Renderer extends JPanel {
         g.setColor(Color.WHITE);
         Font scoreFont = new Font("Press Start 2P", Font.BOLD, 12);
         g.setFont(scoreFont);
-        g.drawString("SCORE " + gameManager.getScore(), 10, 25);
-        g.drawString("LIVES: " + gameManager.getLives(), GameManager.getWindowWidth() - 80, 25);
-        g.drawString("LEVEL : " + gameManager.getLevelManager().getCurrentLevel(), GameManager.getWindowWidth() / 2 - 40, 25);
+        g.drawString("SCORE: " + gameManager.getScore(), 10, 25);
+        g.drawString("LIVES: " + gameManager.getLives(), GameManager.getWindowWidth() - 130, 25);
+        g.drawString("LEVEL: " + gameManager.getLevelManager().getCurrentLevel(), GameManager.getWindowWidth() / 2 - 60, 25);
 
         List<Ball> ballsSnapshot = new ArrayList<>(gameManager.getBalls());
         List<Brick> bricksSnapshot = new ArrayList<>(gameManager.getBricks());
@@ -293,15 +344,6 @@ public class Renderer extends JPanel {
             g.setFont(new Font("Arial", Font.BOLD, 32));
             g.drawString("NEW HIGH SCORE!", GameManager.getWindowWidth() / 2 - 140, GameManager.getWindowHeight() / 2 + 130);
         }
-
-        g.setColor(Color.WHITE);
-        g.setFont(subtitleFont);
-        g.drawString("Final Score: " + gameManager.getScore(), GameManager.getWindowWidth() / 2 - 80, GameManager.getWindowHeight() / 2 + 180);
-
-        g.setColor(Color.WHITE);
-        g.setFont(subtitleFont);
-        g.drawString("Press SPACE to restart", GameManager.getWindowWidth() / 2 - 110, GameManager.getWindowHeight() / 2 + 260);
-        g.drawString("Press L for Full Leaderboard", GameManager.getWindowWidth() / 2 - 130, GameManager.getWindowHeight() / 2 + 300);
     }
 
     private void drawYouWin(Graphics g) {
@@ -311,15 +353,40 @@ public class Renderer extends JPanel {
         if (youWinBackground != null) {
             g.drawImage(youWinBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
-        g.setColor(Color.YELLOW);
-        g.setFont(titleFont);
-        g.drawString("YOU WIN!", GameManager.getWindowWidth() / 2 - 100, GameManager.getWindowHeight() / 2 - 100);
+
+        // ======= VẼ TIÊU ĐỀ =======
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(titleFont);
+        String title = "YOU WIN !";
+        FontMetrics fm = g2d.getFontMetrics(titleFont);
+        int titleWidth = fm.stringWidth(title);
+        int titleHeight = fm.getAscent();
+        int x = (GameManager.getWindowWidth() - titleWidth) / 2;
+        int y = (GameManager.getWindowHeight() / 2) - titleHeight;
+
+
+        // Hiệu ứng đổ bóng
+        g2d.setColor(new Color(32, 15, 217, 255)); // xanh blue
+        for (int i = 1; i <= 5; i++) {
+            g2d.drawString(title, x - i, y - i);
+            g2d.drawString(title, x + i, y + i);
+        }
+
+        // Hiệu ứng gradient chuyển màu
+        java.awt.GradientPaint gradient = new java.awt.GradientPaint(
+                0, y - titleHeight,
+                new Color(60, 181, 255),
+                0, y,
+                new Color(198, 247, 255)
+        );
+        g2d.setPaint(gradient);
+        g2d.drawString(title, x, y);
 
         // Check if this is a high score
         boolean isHighScore = gameManager.getScoreManager().isHighScore(gameManager.getScore());
 
         if (isHighScore && gameManager.getScore() > 0) {
-            g.setFont(new Font("Arial", Font.BOLD, 28));
+            g.setFont(new Font("Press Start 2P", Font.BOLD, 28));
             g.drawString("NEW HIGH SCORE!", GameManager.getWindowWidth() / 2 - 120, GameManager.getWindowHeight() / 2 - 50);
         }
 
@@ -340,22 +407,47 @@ public class Renderer extends JPanel {
         if (leaderboardBackground != null) {
             g.drawImage(leaderboardBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
-        g.setColor(Color.BLACK);
-        g.setFont(new Font("Arial", Font.BOLD, 32));
-        g.drawString("LEADERBOARD", GameManager.getWindowWidth() / 2 - 120, 150);
+        // VẼ TIÊU ĐỀ LEADERBOARD
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(titleFont);
+        String title = "HIGH SCORES";
+        FontMetrics fm = g2d.getFontMetrics(titleFont);
+        int titleWidth = fm.stringWidth(title);
+        int titleHeight = fm.getAscent();
+        int x = (GameManager.getWindowWidth() - titleWidth) / 2 ;
+        int y = (GameManager.getWindowHeight() / 2) - 4 * titleHeight ;
 
-        g.setFont(new Font("Arial", Font.BOLD, 24));
-        g.drawString("HIGH SCORES", GameManager.getWindowWidth() / 2 - 80, 250);
+        int shadowOffset = 4;
+        int glitchOffset = 6;
 
-        g.setFont(new Font("Arial", Font.PLAIN, 20));
+
+        g2d.setColor(new Color(0, 0, 0, 180));
+        g2d.drawString(title, x + shadowOffset, y + shadowOffset);
+
+
+        g2d.setColor(new Color(0, 255, 255, 120));
+        g2d.drawString(title, x - glitchOffset, y);
+
+
+        g2d.setColor(new Color(255, 0, 255, 120)); // Màu Magenta hơi mờ
+        g2d.drawString(title, x + glitchOffset, y);
+
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(title, x, y);
+
+        // VẼ DANH SÁCH ĐIỂM CAO
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 30));
+        g.drawString(" ", GameManager.getWindowWidth() / 2 - 150, 300);
+
+        g.setFont(new Font("Press Start 2P", Font.PLAIN, 20));
         List<Integer> highScores = gameManager.getScoreManager().getHighScores();
 
         if (highScores.isEmpty()) {
-            g.drawString("No scores yet!", GameManager.getWindowWidth() / 2 - 70, 320);
+            g.drawString("No scores yet!", GameManager.getWindowWidth() / 2 - 140, 320);
         } else {
             for (int i = 0; i < highScores.size() && i < 5; i++) {
                 String scoreText = (i + 1) + ". " + highScores.get(i) + " points";
-                g.drawString(scoreText, GameManager.getWindowWidth() / 2 - 70, 320 + (i * 35));
+                g.drawString(scoreText, GameManager.getWindowWidth() / 2 - 140, 330 + (i * 35));
             }
         }
 
@@ -373,83 +465,121 @@ public class Renderer extends JPanel {
         // Get sprite manager for rendering sprites
         SpriteManager spriteManager = new SpriteManager();
 
-        g.setColor(Color.WHITE);
-        g.setFont(titleFont);
-        g.drawString("MENU", GameManager.getWindowWidth() / 2 - 70, 80);
+        // VẼ TIÊU ĐỀ
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setFont(titleFont);
+        String title = "MENU";
+        FontMetrics fm = g2d.getFontMetrics(titleFont);
+        int titleWidth = fm.stringWidth(title);
+        int titleHeight = fm.getAscent();
+        int x = (GameManager.getWindowWidth() - titleWidth) / 2 ;
+        int y = (GameManager.getWindowHeight() / 2) - 7 * titleHeight ;
+
+        int shadowOffset = 4;
+        int glitchOffset = 6;
+
+
+        g2d.setColor(new Color(0, 0, 0, 180));
+        g2d.drawString(title, x + shadowOffset, y + shadowOffset);
+
+
+        g2d.setColor(new Color(0, 255, 255, 120));
+        g2d.drawString(title, x - glitchOffset, y);
+
+
+        g2d.setColor(new Color(255, 0, 255, 120)); // Màu Magenta hơi mờ
+        g2d.drawString(title, x + glitchOffset, y);
+
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(title, x, y);
 
         // CONTROLS SECTION
-        g.setFont(new Font("Arial", Font.BOLD, 22));
-        g.drawString("Controls:", 50, 140);
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
+        g.setColor(new Color(0,0,0));
+        g.drawString("Controls:", 50, 200);
 
-        g.setFont(new Font("Arial", Font.PLAIN, 18));
-        g.drawString("← / A - Move left", 50, 170);
-        g.drawString("→ / D - Move right", 50, 195);
-        g.drawString("SPACE - Launch/Start", 50, 220);
-        g.drawString("L - Leaderboard", 50, 245);
-        g.drawString("M - Menu", 50, 270);
+        g.setFont(new Font("Press Start 2P", Font.PLAIN, 12));
+        g2d.setColor(Color.WHITE);
+        g.drawString("← / A - Move left", 50, 230);
+        g.drawString("→ / D - Move right", 50, 255);
+        g.drawString("SPACE - Launch/Start", 50, 280);
+        g.drawString("L - Leaderboard", 50, 305);
+        g.drawString("M - Menu", 50, 330);
 
         // BRICKS SECTION
-        g.setFont(new Font("Arial", Font.BOLD, 22));
-        g.drawString("Bricks:", 50, 320);
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
+        g.setColor(new Color(0,0,0));
+        g.drawString("Bricks:", 50, 380);
 
-        g.setFont(new Font("Arial", Font.PLAIN, 16));
-        int brickY = 350;
+        g.setFont(new Font("Press Start 2P", Font.PLAIN, 12));
+        int brickY = 410;
         int brickSpacing = 35;
 
         // Draw brick sprites with labels
         g.drawImage(spriteManager.getSprite("brick_pink"), 50, brickY - 20, 48, 24, this);
-        g.drawString("Pink (normal brick) - 1 hit", 110, brickY);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Normal brick", 110, brickY);
 
         g.drawImage(spriteManager.getSprite("brick_blue"), 50, brickY + brickSpacing - 20, 48, 24, this);
-        g.drawString("Blue (strong brick) - 2 hit", 110, brickY + brickSpacing);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Strong brick", 110, brickY + brickSpacing);
 
         g.drawImage(spriteManager.getSprite("brick_purple"), 50, brickY + brickSpacing * 2 - 20, 48, 24, this);
-        g.drawString("Purple (indestructible brick)", 110, brickY + brickSpacing * 2);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Indestructible brick", 110, brickY + brickSpacing * 2);
 
         // BALL SECTION
-        g.setFont(new Font("Arial", Font.BOLD, 22));
-        g.drawString("Ball:", 340, 140);
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
+        g.setColor(new Color(0,0,0));
+        g.drawString("Ball:", 380, 200);
 
-        g.setFont(new Font("Arial", Font.PLAIN, 16));
-        g.drawImage(spriteManager.getSprite("ball_red"), 340, 155, 24, 24, this);
-        g.drawString("Breaks bricks", 375, 173);
-        g.drawString("Bounces off paddle", 340, 200);
-        g.drawString("and walls", 340, 220);
+        g.setFont(new Font("Press Start 2P", Font.PLAIN, 12));
+        g.drawImage(spriteManager.getSprite("ball_red"), 380, 230, 24, 24, this);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Breaks bricks", 420, 230);
+        g.drawString("Bounces off paddle", 420, 255);
+        g.drawString("and walls", 420, 280);
 
         // POWER-UPS
-        g.setFont(new Font("Arial", Font.BOLD, 22));
-        g.drawString("Power-Ups:", 340, 270);
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
+        g.setColor(new Color(0,0,0));
+        g.drawString("Power-Ups:", 380, 380);
 
-        g.setFont(new Font("Arial", Font.PLAIN, 16));
-        int powerUpY = 300;
+        g.setFont(new Font("Press Start 2P", Font.PLAIN, 12));
+        int powerUpY = 410;
         int powerUpSpacing = 35;
 
         // Draw power-up icons (using brick sprites as placeholders with colors)
         // Expand Paddle (Purple-ish)
-        g.drawImage(spriteManager.getSprite("ball_blue"), 340, powerUpY - 15, 24, 24, this);
-        g.drawString("Expand Paddle", 380, powerUpY);
+        g.drawImage(spriteManager.getSprite("ball_blue"), 380, powerUpY - 15, 24, 24, this);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Expand Paddle", 420, powerUpY);
 
         // Fast Ball (Red)
-        g.drawImage(spriteManager.getSprite("ball_green"), 340, powerUpY + powerUpSpacing - 15, 24, 24, this);
-        g.drawString("Fast Ball", 380, powerUpY + powerUpSpacing);
+        g.drawImage(spriteManager.getSprite("ball_green"), 380, powerUpY + powerUpSpacing - 15, 24, 24, this);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Fast Ball", 420, powerUpY + powerUpSpacing);
 
         // Slow Ball (Blue)
-        g.drawImage(spriteManager.getSprite("ball_brown"), 340, powerUpY + powerUpSpacing * 2 - 15, 24, 24, this);
-        g.drawString("Slow Ball", 380, powerUpY + powerUpSpacing * 2);
+        g.drawImage(spriteManager.getSprite("ball_brown"), 380, powerUpY + powerUpSpacing * 2 - 15, 24, 24, this);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Slow Ball", 420, powerUpY + powerUpSpacing * 2);
 
         // Split Ball (Yellow)
-        g.drawImage(spriteManager.getSprite("ball_red"), 340, powerUpY + powerUpSpacing * 3 - 15, 24, 24, this);
-        g.drawString("Split Ball", 380, powerUpY + powerUpSpacing * 3);
+        g.drawImage(spriteManager.getSprite("ball_red"), 380, powerUpY + powerUpSpacing * 3 - 15, 24, 24, this);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Split Ball", 420, powerUpY + powerUpSpacing * 3);
 
         // GAME INFO
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.setColor(Color.CYAN);
-        g.drawString("Score: 100 points per brick", GameManager.getWindowWidth() / 2 - 130, 540);
-        g.drawString("Lives: Start with 3 lives", GameManager.getWindowWidth() / 2 - 110, 570);
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
+        g.setColor(new Color(0,0,0));
+        g.drawString("Score: 100 points per brick", GameManager.getWindowWidth() / 2 - 220, 570);
+        g.drawString("Lives: Start with 3 lives", GameManager.getWindowWidth() / 2 - 200, 600);
 
-        g.setFont(subtitleFont);
-        g.setColor(Color.YELLOW);
-        g.drawString("Press SPACE to return to start screen", GameManager.getWindowWidth() / 2 - 180, 630);
+        g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
+        g.setColor(new Color(25,143,214));
+        g.drawString("Press SPACE", GameManager.getWindowWidth() / 2 - 150, 660);
+        g.drawString("to return to start screen", GameManager.getWindowWidth() / 2 - 220, 685);
     }
 
 
