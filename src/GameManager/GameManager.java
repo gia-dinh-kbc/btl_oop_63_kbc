@@ -51,6 +51,7 @@ public class GameManager implements KeyListener {
 
     public GameManager() {
         soundManager.stopAllSounds();
+        soundManager.preLoadAllSound();
         soundManager.playLoopingSound("start");
     }
 
@@ -75,7 +76,9 @@ public class GameManager implements KeyListener {
         ball.setDy(0);
         balls.add(ball);
 
+        soundManager.stopAllSounds();
         gameState = 1;
+        soundManager.playLoopingSound("background");
     }
 
     /**
@@ -112,7 +115,7 @@ public class GameManager implements KeyListener {
 
             if (paddle.getHitbox().intersects(p.getHitbox().getBounds2D())) {
                 p.applyEffect(this);
-                soundManager.playSound("powerup");
+                soundManager.playSound("powerUp");
                 pIterator.remove();
             } else if (p.getY() > WINDOW_HEIGHT) {
                 pIterator.remove();
@@ -172,7 +175,7 @@ public class GameManager implements KeyListener {
         // Thử chuyển sang level tiếp theo
         if (levelManager.nextLevel()) {
             // Còn level tiếp theo
-            soundManager.playSound("win");
+            soundManager.playSound("levelComplete");
             resetBalls();
 
             // Reset paddle position
@@ -474,11 +477,14 @@ public class GameManager implements KeyListener {
             paddle.moveRight();
         } else if (key == KeyEvent.VK_SPACE) {
             if (gameState == 0 || gameState == 2 || gameState == 3) {
+                soundManager.stopAllSounds();
                 startGame();
             } else if (gameState == 1 && ballAttached) {
                 launchBall();
             } else if (gameState == 4 || gameState == 5) {
+                soundManager.stopAllSounds();
                 gameState = 0;
+                soundManager.playLoopingSound("start");
             }
         } else if (key == KeyEvent.VK_L) {
             if (gameState == 0 || gameState == 2 || gameState == 3) {

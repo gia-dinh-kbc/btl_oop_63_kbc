@@ -1,6 +1,8 @@
 package GameManager;
 
+import Brick.Brick;
 import MovableObject.Ball;
+import PowerUp.PowerUp;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -8,6 +10,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.ImageIcon;
@@ -68,6 +71,9 @@ public class Renderer extends JPanel {
     }
 
     private void drawStartScreen(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight());
+
         if (startScreenBackground != null) {
             g.drawImage(startScreenBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
@@ -90,21 +96,30 @@ public class Renderer extends JPanel {
         g.drawString("Lives: " + gameManager.getLives(), GameManager.getWindowWidth() - 80, 25);
         g.drawString("Level: " + gameManager.getLevelManager().getCurrentLevel(), GameManager.getWindowWidth() / 2 - 40, 25);
 
-        for (Ball b : gameManager.getBalls()) {
+        List<Ball> ballsSnapshot = new ArrayList<>(gameManager.getBalls());
+        List<Brick> bricksSnapshot = new ArrayList<>(gameManager.getBricks());
+        List<PowerUp> powerUpsSnapshot = new ArrayList<>(gameManager.getPowerUps());
+
+        // Render using snapshots (safe from concurrent modification)
+        for (Ball b : ballsSnapshot) {
             b.render(g);
         }
+
         gameManager.getPaddle().render(g);
 
-        for (var brick : gameManager.getBricks()) {
+        for (Brick brick : bricksSnapshot) {
             brick.render(g);
         }
 
-        for (var powerUp : gameManager.getPowerUps()) {
+        for (PowerUp powerUp : powerUpsSnapshot) {
             powerUp.render(g);
         }
     }
 
     private void drawGameOver(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight());
+
         if (gameOverBackground != null) {
             g.drawImage(gameOverBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
@@ -129,6 +144,9 @@ public class Renderer extends JPanel {
     }
 
     private void drawYouWin(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight());
+
         if (youWinBackground != null) {
             g.drawImage(youWinBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
@@ -155,6 +173,9 @@ public class Renderer extends JPanel {
     }
 
     private void drawLeaderboard(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight());
+
         if (leaderboardBackground != null) {
             g.drawImage(leaderboardBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
@@ -181,6 +202,9 @@ public class Renderer extends JPanel {
     }
 
     private void drawMenu(Graphics g) {
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight());
+
         if (menuBackground != null) {
             g.drawImage(menuBackground, 0, 0, GameManager.getWindowWidth(), GameManager.getWindowHeight(), this);
         }
@@ -192,7 +216,7 @@ public class Renderer extends JPanel {
         g.setFont(titleFont);
         g.drawString("MENU", GameManager.getWindowWidth() / 2 - 70, 80);
 
-        // === CONTROLS SECTION ===
+        // CONTROLS SECTION
         g.setFont(new Font("Arial", Font.BOLD, 22));
         g.drawString("Controls:", 50, 140);
 
@@ -203,7 +227,7 @@ public class Renderer extends JPanel {
         g.drawString("L - Leaderboard", 50, 245);
         g.drawString("M - Menu", 50, 270);
 
-        // === BRICKS SECTION ===
+        // BRICKS SECTION
         g.setFont(new Font("Arial", Font.BOLD, 22));
         g.drawString("Bricks:", 50, 320);
 
@@ -221,7 +245,7 @@ public class Renderer extends JPanel {
         g.drawImage(spriteManager.getSprite("brick_purple"), 50, brickY + brickSpacing * 2 - 20, 48, 24, this);
         g.drawString("Purple (indestructible brick)", 110, brickY + brickSpacing * 2);
 
-        // === BALL SECTION ===
+        // BALL SECTION
         g.setFont(new Font("Arial", Font.BOLD, 22));
         g.drawString("Ball:", 340, 140);
 
@@ -231,7 +255,7 @@ public class Renderer extends JPanel {
         g.drawString("Bounces off paddle", 340, 200);
         g.drawString("and walls", 340, 220);
 
-        // === POWER-UPS SECTION ===
+        // POWER-UPS
         g.setFont(new Font("Arial", Font.BOLD, 22));
         g.drawString("Power-Ups:", 340, 270);
 
