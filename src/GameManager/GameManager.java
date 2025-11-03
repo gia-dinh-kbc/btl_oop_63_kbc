@@ -35,6 +35,9 @@ public class GameManager implements KeyListener {
     private Paddle paddle = new Paddle(0, 0, 128, 24, spriteManager);
     private Ball ball = new Ball(0, 0, 24, spriteManager);
     private List<Ball> balls = new ArrayList<>();
+
+
+
     public void addBall(Ball ball) {
         balls.add(ball);  // Thêm bóng vào danh sách balls
     }
@@ -62,6 +65,10 @@ public class GameManager implements KeyListener {
     public GameManager() {
         soundManager.stopAllSounds();
         soundManager.playLoopingSound("start"); // Phát nhạc nền khởi đầu
+    }
+
+    public GameManager(SpriteManager spriteManager) {
+        this.spriteManager = spriteManager;
     }
 
     /**
@@ -97,7 +104,7 @@ public class GameManager implements KeyListener {
 
         if (level == 1) {
             for (int i = 0; i < 10; i++) {
-                for (int j = 2; j <= 3; j++) {
+                for (int j = 1; j <= 3; j++) {
                     if (j == 1) {
                         Brick brick = new StrongBrick(i * width, j * height + 100, width - 1, height - 1, spriteManager);
                         bricks.add(brick);
@@ -217,7 +224,7 @@ public class GameManager implements KeyListener {
     /**
      * Khi qua màn → sang level mới hoặc thắng chung cuộc.
      */
-    private void nextLevel() {
+    public void nextLevel() {
         powerUps.clear();
         if (currentLevel == 1 && score != 0) {
             currentLevel = 2;
@@ -503,6 +510,20 @@ public class GameManager implements KeyListener {
             paddle.stop(); // Dừng paddle khi nhả phím
         }
     }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    public SpriteManager getSpriteManager() {
+        return spriteManager;
+    }
+
+
 
     /** Hàm main khởi chạy game */
     public static void main(String[] args) {
