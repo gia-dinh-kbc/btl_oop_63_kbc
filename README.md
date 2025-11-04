@@ -12,6 +12,14 @@ The objectives of this project are:
 Reference for this project goal:
 [Arkanoid game](https://www.youtube.com/shorts/CkincBpA3ro)
 
+## 🎮 Game Screenshots
+
+Here are some screenshots from the Arkanoid OOP Game:
+
+![Main Menu](menu.jpg)
+![Gameplay](gameplay.jpg)
+![Tutorial](tutorial.jpg)
+
 ## How to Play the Game
 
 1. **Download the game files** from the link below:
