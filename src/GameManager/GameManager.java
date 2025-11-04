@@ -57,6 +57,14 @@ public class GameManager implements KeyListener {
         this.lives = lives;
     }
 
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
     private int gameState = 0;                                   // Trạng thái game (0: bắt đầu, 1: đang chơi, 2: thua, 3: thắng)
     private boolean ballAttached = true;                         // Bóng đang dính vào paddle hay không
     int currentLevel = 1; // Biến theo dõi màn hiện tại
@@ -194,7 +202,7 @@ public class GameManager implements KeyListener {
     /**
      * Khi qua màn → sang level mới hoặc thắng chung cuộc.
      */
-    private void nextLevel() {
+    public void nextLevel() {
         powerUps.clear();
 
         // Thử chuyển sang level tiếp theo
