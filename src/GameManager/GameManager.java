@@ -2,8 +2,6 @@ package GameManager;
 
 // Import các class cần thiết
 import Brick.Brick;
-import Brick.NormalBrick;
-import Brick.StrongBrick;
 import MovableObject.Ball;
 import MovableObject.Paddle;
 import PowerUp.PowerUp;
@@ -22,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.Timer;
-
 
 /**
  * Lớp GameManager chịu trách nhiệm quản lý toàn bộ logic trò chơi:
@@ -65,7 +62,7 @@ public class GameManager implements KeyListener {
     int currentLevel = 1; // Biến theo dõi màn hiện tại
 
     // Kích thước cửa sổ game
-    private static final int WINDOW_WIDTH = 652;
+    private static final int WINDOW_WIDTH = 640;
     private static final int WINDOW_HEIGHT = 800;
 
     // Khi khởi tạo GameManager
