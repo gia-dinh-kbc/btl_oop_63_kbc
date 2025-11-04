@@ -11,3 +11,14 @@ The objectives of this project are:
 
 Reference for this project goal:
 [Arkanoid game](https://www.youtube.com/shorts/CkincBpA3ro)
+
+## How to Play the Game
+
+1. **Download the game files** from the link below:
+   [Download Arkanoid Game](https://drive.google.com/drive/folders/1vhylDyjXVg3GdHloRtBWPOA6Sat18qKH?usp=sharing)
+
+2. **Extract the folder**: After downloading, unzip the folder to a location of your choice.
+
+3. **Run the Game**: Open the extracted folder and double-click on the file `Arkanoid.exe` to start playing the game.
+
+Enjoy the game!
