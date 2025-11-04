@@ -570,6 +570,11 @@ public class Renderer extends JPanel {
         g2d.setColor(Color.WHITE);
         g.drawString("Split Ball", 420, powerUpY + powerUpSpacing * 3);
 
+        // Tăng mạng (Heart)
+        g.drawImage(spriteManager.getSprite("heart"), 380, powerUpY + powerUpSpacing * 4 - 15, 24, 24, this);
+        g2d.setColor(Color.WHITE);
+        g.drawString("Increase heart", 420, powerUpY + powerUpSpacing * 4);
+
         // GAME INFO
         g.setFont(new Font("Press Start 2P", Font.BOLD, 16));
         g.setColor(new Color(0,0,0));

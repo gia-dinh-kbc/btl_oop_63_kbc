@@ -58,6 +58,7 @@ public class SpriteManager {
             sprites.put("ball_green", getSprite(32, 80, BALL_SIZE, BALL_SIZE));
             sprites.put("ball_blue", getSprite(64, 80, BALL_SIZE, BALL_SIZE));
             sprites.put("ball_brown", getSprite(96, 80, BALL_SIZE, BALL_SIZE));
+            sprites.put("heart", getSprite(122, 82, BALL_SIZE, BALL_SIZE));
 
             sprites.put("paddle_red", getSprite(152, 80, PADDLE_WIDTH, PADDLE_HEIGHT));
             sprites.put("paddle_orange", getSprite(0, 112, PADDLE_WIDTH + 32, PADDLE_HEIGHT));
