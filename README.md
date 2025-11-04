@@ -16,9 +16,9 @@ Reference for this project goal:
 
 Here are some screenshots from the Arkanoid OOP Game:
 
-![Main Menu](menu.jpg)
-![Gameplay](gameplay.jpg)
-![Tutorial](tutorial.jpg)
+![Main Menu](images/menu.jpg)
+![Gameplay](images/gameplay.jpg)
+![Tutorial](images/tutorial.jpg)
 
 ## How to Play the Game
 
