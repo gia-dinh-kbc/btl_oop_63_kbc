@@ -1,3 +1,5 @@
+package test;
+
 import GameManager.SpriteManager;
 import MovableObject.Ball;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +14,7 @@ public class BallTest {
     @BeforeEach
     public void setUp() {
         // Khởi tạo SpriteManager (hoặc có thể mock nếu cần thiết)
-        spriteManager = new SpriteManager();
+        SpriteManager spriteManager = SpriteManager.getInstance();
         ball = new Ball(0, 0, 24, spriteManager);
     }
 

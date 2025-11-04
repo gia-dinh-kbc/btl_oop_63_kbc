@@ -22,7 +22,6 @@ public class LevelManager {
     private int currentLevel;
     private final int totalLevels = 3;
     private List<Brick> bricks;
-    private SpriteManager spriteManager;
 
     // Kích thước gạch
     private static final int BRICK_WIDTH = 64;
@@ -32,8 +31,7 @@ public class LevelManager {
     private static final int LEVEL_OFFSET_X = 0;
     private static final int LEVEL_OFFSET_Y = 100;
 
-    public LevelManager(SpriteManager spriteManager) {
-        this.spriteManager = spriteManager;
+    public LevelManager() {
         this.currentLevel = 1;
         this.bricks = new ArrayList<>();
     }
@@ -121,6 +119,7 @@ public class LevelManager {
      * @return Brick object hoặc null nếu type = 0
      */
     private Brick createBrick(int type, int x, int y) {
+        SpriteManager spriteManager = SpriteManager.getInstance();
         switch (type) {
             case 0:
                 // Air - không tạo gạch
@@ -167,6 +166,7 @@ public class LevelManager {
     }
 
     private void loadFallbackLevel1() {
+        SpriteManager spriteManager = SpriteManager.getInstance();
         for (int i = 0; i < 10; i++) {
             for (int j = 2; j <= 3; j++) {
                 Brick brick = new NormalBrick(
@@ -182,6 +182,7 @@ public class LevelManager {
     }
 
     private void loadFallbackLevel2() {
+        SpriteManager spriteManager = SpriteManager.getInstance();
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 3; j++) {
                 Brick brick;
@@ -208,6 +209,7 @@ public class LevelManager {
     }
 
     private void loadFallbackLevel3() {
+        SpriteManager spriteManager = SpriteManager.getInstance();
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 3; j++) {
                 Brick brick;

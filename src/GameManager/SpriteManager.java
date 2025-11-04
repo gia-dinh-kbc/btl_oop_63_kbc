@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SpriteManager {
+    private static SpriteManager instance;
+
     private BufferedImage spriteSheet;
     private final Map<String, BufferedImage> sprites = new HashMap<>();
 
@@ -19,9 +21,21 @@ public class SpriteManager {
     /**
      * SpriteManager constructor.
      */
-    public SpriteManager() {
+    private SpriteManager() {
         loadSpriteSheet();
         extractSprites();
+    }
+
+    /**
+     * Lấy một singleton instance.
+     * @return instance
+     */
+    public static synchronized SpriteManager getInstance() {
+        if (instance == null) {
+            instance = new SpriteManager();
+        }
+
+        return instance;
     }
 
     private void loadSpriteSheet() {

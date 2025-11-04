@@ -15,7 +15,7 @@ public class ExtraLifePowerUp extends PowerUp {
         // Tăng mạng nếu mạng hiện tại ít hơn 3
         if (game.getLives() < 3) {
             game.setLives(game.getLives() + 1);
-            game.getSoundManager().playSound("powerUp"); // Phát âm thanh khi nhận PowerUp
+            game.getSoundManager().playSound("powerup"); // Phát âm thanh khi nhận PowerUp
         }
     }
 }

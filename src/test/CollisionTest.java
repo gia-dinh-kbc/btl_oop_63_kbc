@@ -18,7 +18,7 @@ public class CollisionTest {
     @BeforeEach
     public void setUp() {
         // Khởi tạo SpriteManager để lấy ảnh cho các đối tượng
-        spriteManager = new SpriteManager();
+        SpriteManager spriteManager = SpriteManager.getInstance();
         gameManager = new GameManager();
 
         // Khởi tạo bóng tại vị trí (100, 100) và bán kính 20

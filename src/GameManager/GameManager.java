@@ -29,10 +29,10 @@ import javax.swing.Timer;
  * - Lắng nghe phím điều khiển
  */
 public class GameManager implements KeyListener {
-    private SpriteManager spriteManager = new SpriteManager();
+    private SpriteManager spriteManager = SpriteManager.getInstance();
     private SoundManager soundManager = new SoundManager();
     private ScoreManager scoreManager = new ScoreManager();
-    private LevelManager levelManager = new LevelManager(spriteManager); // NEW!
+    private LevelManager levelManager = new LevelManager();
 
     // Khởi tạo các đối tượng chính trong game
     private Paddle paddle = new Paddle(0, 0, 128, 24, spriteManager);

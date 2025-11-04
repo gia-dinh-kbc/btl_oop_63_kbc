@@ -463,7 +463,7 @@ public class Renderer extends JPanel {
         }
 
         // Get sprite manager for rendering sprites
-        SpriteManager spriteManager = new SpriteManager();
+        SpriteManager spriteManager = SpriteManager.getInstance();
 
         // VẼ TIÊU ĐỀ
         Graphics2D g2d = (Graphics2D) g;
