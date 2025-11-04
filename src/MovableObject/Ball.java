@@ -13,6 +13,7 @@ public class Ball extends MovableObject {
     private Ellipse2D.Double hitbox;
     private SpriteManager spriteManager;
     private BufferedImage ballSprite;
+    private static final Random random = new Random(); // Static random for efficiency
 
     public Ball(int x, int y, int radius, SpriteManager spriteManager) {
         super(x, y, radius, radius);
@@ -34,10 +35,20 @@ public class Ball extends MovableObject {
         this.dy = 0;
     }
 
+    /**
+     * Launch the ball with a randomized angle
+     * Angle range: 45° to 135° (upward angles only)
+     */
     public void launch() {
-        double angle = Math.toRadians(60);
+        // Random angle between 45° and 135° (avoiding too steep or too flat angles)
+        double minAngle = 45.0;  // Minimum angle in degrees
+        double maxAngle = 135.0; // Maximum angle in degrees
+
+        double randomAngleDegrees = minAngle + (maxAngle - minAngle) * random.nextDouble();
+        double angle = Math.toRadians(randomAngleDegrees);
+
         dx = speed * Math.cos(angle);
-        dy = -speed * Math.sin(angle);
+        dy = -speed * Math.sin(angle); // Negative to go upward
     }
 
     public void reverseX() {
@@ -58,30 +69,33 @@ public class Ball extends MovableObject {
     public void increaseSpeed() {
         this.speed = 4;
 
-        double currentSpeed = Math.sqrt(dx * dx + dy * dy);  // Tính tốc độ hiện tại của bóng
-        double speedRatio = currentSpeed / speed;  // Tính tỷ lệ giữa tốc độ hiện tại và tốc độ mới
-
-        dx = dx / speedRatio;
-        dy = dy / speedRatio;
+        double currentSpeed = Math.sqrt(dx * dx + dy * dy);
+        if (currentSpeed > 0) {
+            double speedRatio = speed / currentSpeed;
+            dx = dx * speedRatio;
+            dy = dy * speedRatio;
+        }
     }
 
     public void decreaseSpeed() {
         this.speed = 2;
 
-        double currentSpeed = Math.sqrt(dx * dx + dy * dy);  // Tính tốc độ hiện tại của bóng
-        double speedRatio = currentSpeed / speed;  // Tính tỷ lệ giữa tốc độ hiện tại và tốc độ mới
-
-        dx = dx / speedRatio;
-        dy = dy / speedRatio;
+        double currentSpeed = Math.sqrt(dx * dx + dy * dy);
+        if (currentSpeed > 0) {
+            double speedRatio = speed / currentSpeed;
+            dx = dx * speedRatio;
+            dy = dy * speedRatio;
+        }
     }
 
     public void resetSpeed() {
         this.speed = 3;
         double currentSpeed = Math.sqrt(dx * dx + dy * dy);
-        double speedRatio = currentSpeed / speed;
-
-        dx = dx / speedRatio;
-        dy = dy / speedRatio;
+        if (currentSpeed > 0) {
+            double speedRatio = speed / currentSpeed;
+            dx = dx * speedRatio;
+            dy = dy * speedRatio;
+        }
     }
 
     public SpriteManager getSpriteManager() {

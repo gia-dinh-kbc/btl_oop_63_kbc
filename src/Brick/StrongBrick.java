@@ -6,7 +6,6 @@ public class StrongBrick extends Brick {
 
     public StrongBrick(int x, int y, int width, int height, SpriteManager spriteManager) {
         super(x, y, width, height, spriteManager);
-        this.type = 2;
         this.hitPoints = 2;
         updateSprite();
     }
